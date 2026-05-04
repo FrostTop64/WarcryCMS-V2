@@ -6,7 +6,7 @@ unset($error);
 <nav id="secondary" class="disable-tabbing"><ul><li class="current"><a href="#maintab">Dashboard</a></li></ul></nav>
 <section id="content">
   <div class="tab" id="maintab">
-    <div class="notice"><strong>Warcry CMS Admin</strong> — panneau administratif modernisé, plus propre, plus lisible et plus simple à naviguer.</div>
+    <div class="notice"><strong>Warcry CMS Admin</strong> — Modernized administrative panel, cleaner, more readable and easier to navigate.</div>
     <div class="admin-grid">
       <div class="stat-card"><span>Status</span><strong>Online</strong><small class="muted">Admin panel ready</small></div>
       <div class="stat-card"><span>Theme</span><strong>AAA</strong><small class="muted">Warcry red / silver style</small></div>
