@@ -20,6 +20,7 @@ $allowed = array(
     'avatars',
     'topvote',
     'settings',
+    'realms',
 );
 
 ob_start();
