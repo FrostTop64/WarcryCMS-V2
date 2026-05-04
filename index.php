@@ -14,6 +14,7 @@ $allowed = array(
 	'loginb',
 	'register',
 	'account',
+	'activity',
 	'store',
 	'vote',
 	'buycoins',
