@@ -1,5 +1,13 @@
 <?php
 include_once 'engine/initialize.php';
+if ($CURUSER->isOnline()) {
+    if (function_exists('warcry_admin_is_allowed_account') && warcry_admin_is_allowed_account((int)$CURUSER->get('id'))) {
+        header('Location: '.$config['BaseURL'].'/admin/index.php');
+        exit;
+    }
+    header('Location: '.$config['BaseURL'].'/index.php');
+    exit;
+}
 ?>
 <!doctype html>
 <html lang="en">

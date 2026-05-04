@@ -1,11 +1,17 @@
 <?PHP
 include_once 'engine/initialize.php';
+if (!class_exists('Permissions') && file_exists($config['RootPath'].'/admin/engine/classes/permissions.php')) { require_once $config['RootPath'].'/admin/engine/classes/permissions.php'; }
+if (file_exists($config['RootPath'].'/admin/engine/classes/admin.guard.php')) { require_once $config['RootPath'].'/admin/engine/classes/admin.guard.php'; }
 
 define("init_executes", true);
  
 $execute = ((isset($_GET['take'])) ? $_GET['take'] : NULL);
       
-$file = $config['RootPath'].'/admin/execute_files/'.$execute.'_execute.php';  
+$file = $config['RootPath'].'/admin/execute_files/'.$execute.'_execute.php';
+
+if ($execute !== 'login' && function_exists('warcry_admin_require_panel_access')) {
+    warcry_admin_require_panel_access();
+}  
 
 $allowed = array(
 	'login',
@@ -35,6 +41,7 @@ $allowed = array(
 	'save_settings',
 	'avatars',
 	'manage_user',
+	'forum_manage',
 );
 
 if (in_array($execute, $allowed))

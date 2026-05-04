@@ -46,62 +46,107 @@ $ACPValidPermissions = array
 
 class Permissions
 {
-	private $data = false;
-	
-	public function __construct($account)
-	{
-		global $DB;
-		
-		//get the permissions for this account if any
-		$res = $DB->prepare("SELECT * FROM `acp_permissions` WHERE `id` = :account LIMIT 1;");
-		$res->bindParam(':account', $account, PDO::PARAM_INT);
-		$res->execute();
-		
-		if ($res->rowCount() > 0)
-		{
-			$this->data = $res->fetch(PDO::FETCH_NUM);
-		}
-		unset($res);
-	}
-	
-	public function IsAllowedToUseACP()
-	{
-		global $ACPValidPermissions;
-		
-		//If the user has no record
-		if (!$this->data)
-			return false;
-		
-		//Check if the user has atleast one permission
-		foreach ($ACPValidPermissions as $permission)
-		{
-			if ((int)$this->data[$permission] == 1)
-				return true;
-		}
-		
-		//Default is false
-		return false;
-	}
-	
-	public function isAllowed($index)
-	{
-		global $ACPValidPermissions;
-		
-		//check if the permissions is valid
-		if (!in_array($index, $ACPValidPermissions))
-			return false;
-		
-		//check if the given index exists
-		if (isset($this->data[$index]))
-		{
-			return ((int)$this->data[$index] == 1 ? true : false);
-		}
-		
-		return false;
-	}
-	
-	public function __destruct()
-	{
-		unset($this->data);
-	}
+    private $data = false;
+    private $accountId = 0;
+    private $rank = 0;
+
+    public function __construct($account)
+    {
+        global $DB;
+
+        $this->accountId = (int)$account;
+
+        // Load ACP permission row if it exists.
+        $res = $DB->prepare("SELECT * FROM `acp_permissions` WHERE `id` = :account LIMIT 1;");
+        $res->bindParam(':account', $this->accountId, PDO::PARAM_INT);
+        $res->execute();
+
+        if ($res->rowCount() > 0)
+        {
+            $this->data = $res->fetch(PDO::FETCH_NUM);
+        }
+        unset($res);
+
+        // Load CMS rank from account_data. Staff ranks are allowed to access ACP even without acp_permissions.
+        try
+        {
+            $rankRes = $DB->prepare("SELECT `rank` FROM `account_data` WHERE `id` = :account LIMIT 1;");
+            $rankRes->bindParam(':account', $this->accountId, PDO::PARAM_INT);
+            $rankRes->execute();
+
+            if ($rankRes->rowCount() > 0)
+            {
+                $rankRow = $rankRes->fetch(PDO::FETCH_ASSOC);
+                $this->rank = (int)$rankRow['rank'];
+            }
+            unset($rankRes);
+        }
+        catch (Exception $e)
+        {
+            $this->rank = 0;
+        }
+    }
+
+    public function IsStaffRank()
+    {
+        $staffRanks = array(
+            RANK_GM,
+            RANK_SENIOR_GM,
+            RANK_LEAD_GM,
+            RANK_CM,
+            RANK_SENIOR_CM,
+            RANK_LEAD_CM,
+            RANK_DEV,
+            RANK_LEAD_DEV,
+            RANK_MANAGEMENT
+        );
+
+        return in_array((int)$this->rank, $staffRanks, true);
+    }
+
+    public function IsAllowedToUseACP()
+    {
+        global $ACPValidPermissions;
+
+        // Any defined staff rank can enter the Admin Panel.
+        if ($this->IsStaffRank())
+            return true;
+
+        // If the user has no ACP permission record and is not staff, deny.
+        if (!$this->data)
+            return false;
+
+        // Check if the user has at least one ACP permission.
+        foreach ($ACPValidPermissions as $permission)
+        {
+            if (isset($this->data[$permission]) && (int)$this->data[$permission] == 1)
+                return true;
+        }
+
+        return false;
+    }
+
+    public function isAllowed($index)
+    {
+        global $ACPValidPermissions;
+
+        if (!in_array($index, $ACPValidPermissions))
+            return false;
+
+        // Staff ranks get full ACP access.
+        if ($this->IsStaffRank())
+            return true;
+
+        if (isset($this->data[$index]))
+        {
+            return ((int)$this->data[$index] == 1 ? true : false);
+        }
+
+        return false;
+    }
+
+    public function __destruct()
+    {
+        unset($this->data);
+    }
 }

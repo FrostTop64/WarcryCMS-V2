@@ -5,7 +5,11 @@ define("init_executes", true);
  
 $execute = ((isset($_GET['take'])) ? $_GET['take'] : NULL);
       
-$file = $config['RootPath'].'/admin/execute_files/'.$execute.'_execute.php';  
+$file = $config['RootPath'].'/admin/execute_files/'.$execute.'_execute.php';
+
+if ($execute !== 'login') {
+    warcry_admin_require_panel_access();
+}  
 
 $allowed = array(
 	'login',
@@ -36,7 +40,7 @@ $allowed = array(
 	'avatars',
 	'manage_user',
 	'topvote',
-	'ticket_manage',
+	'forum_manage',
 );
 
 if (in_array($execute, $allowed))

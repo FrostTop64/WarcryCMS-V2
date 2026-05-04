@@ -18,6 +18,7 @@ include_once $config['RootPath'] . '/engine/classes/cache.php';
 include_once $config['RootPath'] . '/admin/engine/classes/multipleError_handler.php';
 include_once $config['RootPath'] . '/admin/engine/classes/sessions.secure.php';
 include_once $config['RootPath'] . '/admin/engine/classes/permissions.php';
+include_once $config['RootPath'] . '/admin/engine/classes/admin.guard.php';
 include_once $config['RootPath'] . '/admin/engine/classes/accounts.curuser.php';
 include_once $config['RootPath'] . '/admin/engine/classes/security.php';
 include_once $config['RootPath'] . '/admin/engine/classes/img.manipulation.php';
