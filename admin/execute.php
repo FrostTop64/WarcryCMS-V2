@@ -35,6 +35,7 @@ $allowed = array(
 	'save_settings',
 	'avatars',
 	'manage_user',
+	'topvote',
 );
 
 if (in_array($execute, $allowed))

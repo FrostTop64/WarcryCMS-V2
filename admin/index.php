@@ -18,6 +18,7 @@ $allowed = array(
     'tickets',
     'changelogs',
     'avatars',
+    'topvote',
     'settings',
 );
 

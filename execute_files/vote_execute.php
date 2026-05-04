@@ -25,8 +25,6 @@ $VoteData = new VoteSitesData();
 
 //prepare multi errors
 $ERRORS->NewInstance('vote');
-//bind the onsuccess message
-$ERRORS->onSuccess('Congratulation, you have recieved '.$pointsPerVote.' Silver coins.', '/index.php?page=vote');
 
 if (!$siteid)
 {
@@ -36,7 +34,14 @@ if (!$voteSitesData = $VoteData->get($siteid))
 {
 	$ERRORS->Add("Please select a valid voting website.");
 }
+else
+{
+	if (isset($voteSitesData['reward_silver'])) { $pointsPerVote = (int)$voteSitesData['reward_silver']; }
+	if (isset($voteSitesData['cooldown']) && trim($voteSitesData['cooldown']) != '') { $cooldownTime = trim($voteSitesData['cooldown']); }
+}
 unset($VoteData);
+//bind the onsuccess message
+$ERRORS->onSuccess('Congratulation, you have recieved '.$pointsPerVote.' Silver coins.', '/index.php?page=vote');
 //check the cooldown
 if (time() < $cooldown)
 {

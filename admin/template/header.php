@@ -13,6 +13,7 @@ $MENU = array(
   array('title'=>'Tickets','page'=>'tickets','match'=>'tickets','permission'=>PERMISSION_TICKETS,'icon'=>'T'),
   array('title'=>'Changelogs','page'=>'changelogs','match'=>'changelogs','permission'=>false,'icon'=>'C'),
   array('title'=>'Avatars','page'=>'avatars','match'=>'avatars','permission'=>PERMISSION_MEDIA_MOVIES,'icon'=>'★'),
+  array('title'=>'Top Vote','page'=>'topvote','match'=>'topvote','permission'=>false,'icon'=>'V'),
   array('title'=>'Settings','page'=>'settings','match'=>'settings','permission'=>false,'icon'=>'⚙'),
 );
 function warcry_admin_allowed($perm, $CURUSER) {

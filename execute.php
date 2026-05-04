@@ -5,52 +5,52 @@ define("init_executes", true);
  
 $execute = ((isset($_GET['take'])) ? $_GET['take'] : NULL);
       
-$file = $config['RootPath'].'/execute_files/'.$execute.'_execute.php';  
+$file = $config['RootPath'].'/admin/execute_files/'.$execute.'_execute.php';  
 
 $allowed = array(
-	'buyItems',
 	'login',
-	'precovery',
-	'precovery_finish',
-	'register',
-	'unstuck',
-	'vote',
-	'changepass',
-	'changemail',
-	'changedname',
-	'level',
-	'faction',
-	'recustomization',
-	'armorset',
-	'screenshot',
-	'teleport',
-	'submit_bug',
-		'update_bugreport',
-		'delete_bugreport',
-	'item_refund',
-	'post_topic',
-	'post_reply',
-	'edit_reply',
-	'purchase_boost',
-	'purchase_gold',
-	'redeem_pcode',
-	'set_realm',
+	'cropImage',
+	'addNews',
+	'editNews',
+	'delete',
+	'add_armorsetcat',
+	'edit_armorsetcat',
+	'add_forumcat',
+	'edit_forumcat',
+	'add_armorset',
+	'edit_armorset',
+	'approve_report',
+	'disapprove_report',
+	'edit_bugreport',
+	'add_pcode',
+	'add_article',
+	'edit_article',
+	'grant_permissions',
+	'chuckedUpload',
+	'add_movie',
+	'wallpaper',
+	'edit_storeitem',
+	'add_storeitem',
+	'change_user_rank',
+	'save_settings',
+	'avatars',
+	'manage_user',
 );
 
 if (in_array($execute, $allowed))
 {
 	if (file_exists($file))
 	{
-		require_once $file; 
+		require_once $file;
 	}
 	else
 	{
-		echo 'The file does not exist.';
-		die; 
+		header('HTTP/1.0 404 not found');
+		exit;
 	}
 }
 else
 {
-	echo 'The file is not allowed.';
-	die;
+	header('HTTP/1.0 404 not found');
+	exit;
 }
