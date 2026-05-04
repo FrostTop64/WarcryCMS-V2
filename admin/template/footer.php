@@ -1,6 +1,6 @@
 <?php if (!defined('init_template')) { header('HTTP/1.0 404 not found'); exit; } ?>
   </div>
-  <footer id="copyright">Warcry Admin Panel © 2026 — Remis à neuf et fixé par Frost_Top</footer>
+  <footer id="copyright">Warcry Admin Panel © 2026 — All Rights Reserved by Frost_Top</footer>
 </div>
 <script>
 function tabAutoSwitch(tab){
