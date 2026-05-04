@@ -33,6 +33,7 @@ $allowed = array(
 	'add_storeitem',
 	'change_user_rank',
 	'save_settings',
+	'avatars',
 );
 
 if (in_array($execute, $allowed))

@@ -17,6 +17,7 @@ $allowed = array(
     'users', 'user-preview',
     'tickets',
     'changelogs',
+    'avatars',
     'settings',
 );
 
