@@ -34,7 +34,7 @@ $allowed = array(
 	'change_user_rank',
 	'save_settings',
 	'avatars',
-	'forum_manage',
+	'manage_user',
 );
 
 if (in_array($execute, $allowed))
