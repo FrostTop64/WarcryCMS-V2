@@ -71,3 +71,104 @@
 			p.armor-store-fix {
 				padding:9px 0 0 10px;
 			}
+
+/* Warcry - Personal account activity layout fix
+---------------------------------------------------------*/
+.account-activity {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.account-activity .page-desc-holder {
+    max-width: 800px;
+    margin: 24px auto 20px auto;
+    line-height: 18px;
+    text-align: center;
+}
+
+.account-wide {
+    width: 800px !important;
+    max-width: 800px;
+    margin: 0 auto 14px auto;
+    padding: 0 24px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.account-wide .activity-list {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.account-wide .activity-list li {
+    width: 100%;
+    min-height: 56px;
+    height: auto;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.account-wide .activity-list li p {
+    box-sizing: border-box;
+    min-height: 56px;
+    margin: 0;
+    padding-top: 19px;
+    padding-bottom: 12px;
+    line-height: 15px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.account-wide .activity-list li p#r-title {
+    width: 30%;
+    padding-left: 0;
+}
+
+.account-wide .activity-list li p#r-info {
+    width: 45%;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.account-wide .activity-list li p#ar-date {
+    width: 25%;
+    text-align: right;
+}
+
+.pagination-holder.wide {
+    width: 800px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 10px 0 0 0;
+    overflow: hidden;
+}
+
+@media (max-width: 900px) {
+    .account-wide,
+    .pagination-holder.wide {
+        width: 94% !important;
+        max-width: 94%;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .account-wide .activity-list li p#r-title,
+    .account-wide .activity-list li p#r-info,
+    .account-wide .activity-list li p#ar-date {
+        width: 100%;
+        float: none;
+        display: block;
+        min-height: 0;
+        padding: 4px 0;
+        text-align: left;
+    }
+
+    .account-wide .activity-list li {
+        padding: 10px 0;
+    }
+}

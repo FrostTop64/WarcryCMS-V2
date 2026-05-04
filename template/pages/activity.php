@@ -17,7 +17,7 @@ $TPL->LoadHeader();
 $p = (isset($_GET['p']) ? (int)$_GET['p'] : 1);
 if ($p < 1) { $p = 1; }
 
-$perPage = 10;
+$perPage = 6;
 $accountId = (int)$CURUSER->get('id');
 $username = (string)$CURUSER->get('username');
 $displayName = (string)$CURUSER->get('displayName');
