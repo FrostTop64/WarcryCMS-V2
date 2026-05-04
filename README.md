@@ -1,4 +1,4 @@
-# ![logo](https://ibb.co/QFJLyXGt)
+# ![logo](https://i.ibb.co/RpgfR7Wd/Warcry-CMS-Png.png)
 
 # Warcry CMS
 
