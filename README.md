@@ -1,30 +1,84 @@
 # ![logo](http://i.imgur.com/FEbMK2p.png)
+
 # Warcry CMS
 
-Warcry CMS is a lightweight content management system designed for World of Warcraft private servers (AzerothCore). It provides essential tools to manage a website, player accounts, and an in-game store connected to your server database.
+Warcry CMS is a modern content management system for World of Warcraft private servers (AzerothCore).
+This version has been cleaned, fixed, and updated for better stability and performance.
 
 ---
 
-## Features
+## 🚀 Features
 
 * WoW database integration (Auth, Characters, World)
-* In-game item store system
-* User account management
-* Item support via `item_template`
+* In-game store system
+* Account management panel
+* Store activity tracking
 * Dynamic item icons (Wowhead integration)
-* Simple and customizable interface
+* Clean Warcry UI theme
 
 ---
 
-## Installation
+## 🆕 Improvements (2026)
 
-1. Clone the repository:
+### 🧹 Cleanup & Optimization
 
-```bash
-git clone https://github.com/HypnosQc/WarcryCms
+* Removed unused and legacy files
+* Cleaned outdated 2017 code
+* Improved structure and readability
+
+### ⚙️ PHP Fixes
+
+* Fixed PHP 8 warnings
+* Fixed deprecated functions
+* Improved stability across pages
+
+### 🛒 Store Activity
+
+* Fixed errors on activity page
+* Removed broken clickable item links
+* Improved display and data handling
+
+### 🔒 Security
+
+* Prevented access to invalid pages
+* Fixed directory listing issues
+
+---
+
+## 🆕 New Content
+
+### 👤 Profile Page
+
+* Custom user profile system
+* Displays player/account information
+* Integrated with database
+
+### ⚔️ Armory Page
+
+* Custom Armory system
+* Displays characters, items, and visuals
+* Improved item icon handling
+
+### 🛠️ Admin Panel (In Development)
+
+* Administrative control panel
+* Future management tools for:
+
+  * Users
+  * Store
+  * Website content
+
+---
+
+## 📦 Installation
+
+1. Place the CMS inside a folder named:
+
+```
+warcry
 ```
 
-2. Import the SQL files located in:
+2. Import SQL files from:
 
 ```
 /_SQL&Guide
@@ -36,26 +90,33 @@ git clone https://github.com/HypnosQc/WarcryCms
 config.php
 ```
 
-4. Launch the site on your local or web server.
+4. Launch your website.
 
 ---
 
-## Requirements
+## 🧾 Requirements
 
-* PHP 7.4+
+* PHP 8.0+
 * MySQL / MariaDB
-* Apache or Nginx
+* Apache / Nginx
 * AzerothCore server
 
 ---
 
-## Author
+## 🛠️ Customization
 
-Fixed by Frost_Top
+* Fully customizable via `/template/`
+* Easy to modify UI and features
 
 ---
 
-## License
+## 👤 Author
+
+Updated & Fix by **Frost_Top**
+
+---
+
+## 📄 License
 
 MIT License
 
