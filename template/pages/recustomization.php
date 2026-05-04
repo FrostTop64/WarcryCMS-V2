@@ -7,6 +7,18 @@ if (!defined('init_pages'))
 
 $CORE->loggedInOrReturn();
 
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('recustomization')) {
+    $TPL->SetTitle('Service Disabled');
+    $TPL->LoadHeader();
+    echo '<div class="content_holder"><div class="container_2 account"><div class="cont-image"><div class="container_3 account_sub_header"><div class="grad"><div class="page-title">Service Disabled</div><a href="'.$config['BaseURL'].'/index.php?page=account">Back to account</a></div></div><p style="padding:30px;text-align:center;">This account module is currently disabled by the staff.</p></div></div></div>';
+    $TPL->LoadFooter();
+    exit;
+}
+$moduleTitle = warcry_account_module_get('recustomization_title', 'Character Re-customization');
+$moduleDescription = warcry_account_module_get('recustomization_description', '');
+$modulePrice = warcry_account_module_price('recustomization', 5);
+
 $RealmId = $CURUSER->GetRealm();
 
 //Set the title
@@ -66,7 +78,8 @@ $TPL->LoadHeader();
        		<div class="page-desc-holder">
                 Character re-customization will allow you to change the looks of<br/>
 				your character. (character rename included)<br/>
-				This will cost you <font color="#aa893b"><b>5 gold</b></font> coins.
+				<?php echo nl2br(htmlspecialchars($moduleDescription, ENT_QUOTES, 'UTF-8')); ?><br/>
+                This service costs <font color="#aa893b"><b><?php echo (int)$modulePrice; ?> gold</b></font> coins.
             </div>
             
             <div class="container_3 account-wide" align="center">

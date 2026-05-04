@@ -79,8 +79,8 @@ unset($res);
         
       		
        		<div class="page-desc-holder">
-		Donec non sem diam. Donec id sapien et quam vestibulum congue a sed lectus. <br/>Pellentesque feugiat tempus mauris, id porttitor sapien interdum non.
-            </div>
+			Here is your Activity Hub, where you can track the source of your rewards in credits, whether Silver or Gold on the website.
+			</div>
             
             
             <div class="container_3 account-wide" align="center">

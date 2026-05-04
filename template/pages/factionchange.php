@@ -7,10 +7,22 @@ if (!defined('init_pages'))
 
 $CORE->loggedInOrReturn();
 
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('faction')) {
+    $TPL->SetTitle('Service Disabled');
+    $TPL->LoadHeader();
+    echo '<div class="content_holder"><div class="container_2 account"><div class="cont-image"><div class="container_3 account_sub_header"><div class="grad"><div class="page-title">Service Disabled</div><a href="'.$config['BaseURL'].'/index.php?page=account">Back to account</a></div></div><p style="padding:30px;text-align:center;">This account module is currently disabled by the staff.</p></div></div></div>';
+    $TPL->LoadFooter();
+    exit;
+}
+$moduleTitle = warcry_account_module_get('faction_title', 'Faction Change');
+$moduleDescription = warcry_account_module_get('faction_description', '');
+$modulePrice = warcry_account_module_price('faction', 5);
+
 $RealmId = $CURUSER->GetRealm();
 
 //Set the title
-$TPL->SetTitle('Character Faction Change');
+$TPL->SetTitle($moduleTitle);
 //Print the header
 $TPL->LoadHeader();
 
@@ -55,7 +67,7 @@ $TPL->LoadHeader();
    
             <div class="container_3 account_sub_header">
                 <div class="grad">
-                    <div class="page-title">Faction Change</div>
+                    <div class="page-title"><?php echo htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8'); ?></div>
                     <a href="<?php echo $config['BaseURL'], '/index.php?page=account'; ?>">Back to account</a>
                 </div>
             </div>    
@@ -64,9 +76,8 @@ $TPL->LoadHeader();
       	<div class="faction-change">
       		
        		<div class="page-desc-holder">
-                Faction Change will cost you <font color="#aa893b"><b>5 gold</b></font> coins.<br/>
-				The faction change cant be reversed, if you want to change to your old faction<br/>
-				you will have to repeat the faction change.
+                <?php echo nl2br(htmlspecialchars($moduleDescription, ENT_QUOTES, 'UTF-8')); ?><br/>
+                This service costs <font color="#aa893b"><b><?php echo (int)$modulePrice; ?> gold</b></font> coins.
             </div>
             
             <div class="container_3 account-wide" align="center">

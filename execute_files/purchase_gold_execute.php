@@ -16,6 +16,8 @@ $CORE->load_CoreModule('purchaseLog');
 //load the sendmail class
 $CORE->load_ServerModule('commands');
 $CORE->load_CoreModule('accounts.finances');
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('purchase_gold')) { $ERRORS->NewInstance('pStore_gold'); $ERRORS->Add('This account module is currently disabled.'); $ERRORS->Check('/index.php?page=account'); }
 
 //prepare the sendmail class						
 $command = new server_Commands();
@@ -50,33 +52,23 @@ if (!$GoldAmount)
 }
 else
 {
-	//Verify the gold amount
-	if ($GoldAmount < 1000)
+	$goldSettings = warcry_purchase_gold_settings();
+	if ($GoldAmount < $goldSettings['min'])
 	{
-		$GoldAmount = 1000;
+		$GoldAmount = $goldSettings['min'];
 	}
-	//check for the limit
-	if ($GoldAmount > 100000)
+	if ($GoldAmount > $goldSettings['max'])
 	{
-		$ERRORS->Add("The maximum that you can purchase is 100,000 gold.");
+		$ERRORS->Add("The maximum that you can purchase is " . number_format($goldSettings['max']) . " gold.");
 	}
 }
 
 $ERRORS->Check('/index.php?page=purchase_gold');
 
-//Calculate the cost
-//get the left overs
-$leftOver = $GoldAmount % 1000;
-
-//any left over costs +1 gold coin
-if ($leftOver > 0)
-{
-	$GoldAmount -= $leftOver;
-	$GoldAmount += 1000;
-}
-
-//calculate the price
-$price = $GoldAmount / 1000;
+//Calculate the cost from admin module settings
+$goldSettings = warcry_purchase_gold_settings();
+$GoldAmount = warcry_round_gold_amount($GoldAmount, $goldSettings['unit'], $goldSettings['min'], $goldSettings['max']);
+$price = warcry_purchase_gold_cost($GoldAmount);
 
 ######################################
 ######### CHECK FINANCES #############

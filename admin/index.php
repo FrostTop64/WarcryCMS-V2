@@ -21,6 +21,9 @@ $allowed = array(
     'topvote',
     'settings',
     'realms',
+    'account-modules',
+    'site-logs',
+    'logs', 'logs-pw', 'logs-sp', 'logs-as', 'logs-lvl', 'logs-fc', 'logs-customiz', 'logs-igg', 'logs-boost',
 );
 
 ob_start();

@@ -42,6 +42,7 @@ $allowed = array(
 	'topvote',
 	'forum_manage',
 	'realms',
+	'account_modules',
 );
 
 if (in_array($execute, $allowed))

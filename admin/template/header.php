@@ -15,6 +15,8 @@ $MENU = array(
   array('title'=>'Avatars','page'=>'avatars','match'=>'avatars','permission'=>PERMISSION_MEDIA_MOVIES,'icon'=>'★'),
   array('title'=>'Top Vote','page'=>'topvote','match'=>'topvote','permission'=>false,'icon'=>'V'),
   array('title'=>'Realms','page'=>'realms','match'=>'realms','permission'=>false,'icon'=>'R'),
+  array('title'=>'Account Modules','page'=>'account-modules','match'=>'account-modules','permission'=>PERMISSION_STORE,'icon'=>'$'),
+  array('title'=>'Site Logs','page'=>'site-logs','match'=>'site-logs,logs,logs-pw,logs-sp,logs-as,logs-lvl,logs-fc,logs-customiz,logs-igg,logs-boost','permission'=>PERMISSION_LOGS,'icon'=>'L'),
   array('title'=>'Settings','page'=>'settings','match'=>'settings','permission'=>false,'icon'=>'⚙'),
 );
 function warcry_admin_allowed($perm, $CURUSER) {

@@ -16,6 +16,8 @@ $CORE->load_CoreModule('purchaseLog');
 //load the sendmail class
 $CORE->load_ServerModule('commands');
 $CORE->load_CoreModule('accounts.finances');
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('faction')) { $ERRORS->NewInstance('pStore_faction'); $ERRORS->Add('This account module is currently disabled.'); $ERRORS->Check('/index.php?page=account'); }
 
 //prepare the sendmail class						
 $command = new server_Commands();
@@ -35,7 +37,7 @@ $character = (isset($_POST['character']) ? $_POST['character'] : false);
 $RealmId = $CURUSER->GetRealm();
 
 //define how much a faction change is going to cost
-$factionChangePrice = 5;
+$factionChangePrice = warcry_account_module_price('faction', 5);
 
 if (!$character)
 {

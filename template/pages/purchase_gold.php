@@ -7,10 +7,22 @@ if (!defined('init_pages'))
 
 $CORE->loggedInOrReturn();
 
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('purchase_gold')) {
+    $TPL->SetTitle('Service Disabled');
+    $TPL->LoadHeader();
+    echo '<div class="content_holder"><div class="container_2 account"><div class="cont-image"><div class="container_3 account_sub_header"><div class="grad"><div class="page-title">Service Disabled</div><a href="'.$config['BaseURL'].'/index.php?page=account">Back to account</a></div></div><p style="padding:30px;text-align:center;">This account module is currently disabled by the staff.</p></div></div></div>';
+    $TPL->LoadFooter();
+    exit;
+}
+$goldSettings = warcry_purchase_gold_settings();
+$goldTitle = warcry_account_module_get('purchase_gold_title', 'In-Game Gold');
+$goldDescription = warcry_account_module_get('purchase_gold_description', 'Purchase in-game gold and receive it by mail on the selected character.');
+
 $RealmId = $CURUSER->GetRealm();
 
 //Set the title
-$TPL->SetTitle('Purchase In-Game Gold');
+$TPL->SetTitle($goldTitle);
 //Print the header
 $TPL->LoadHeader();
 
@@ -55,7 +67,7 @@ $TPL->LoadHeader();
    
             <div class="container_3 account_sub_header">
                 <div class="grad">
-                    <div class="page-title">In-Game Gold</div>
+                    <div class="page-title"><?php echo htmlspecialchars($goldTitle, ENT_QUOTES, 'UTF-8'); ?></div>
                     <a href="<?php echo $config['BaseURL'], '/index.php?page=account'; ?>">Back to account</a>
                 </div>
             </div>    
@@ -64,7 +76,8 @@ $TPL->LoadHeader();
       	<div class="faction-change">
       		
        		<div class="page-desc-holder">
-                
+                <?php echo nl2br(htmlspecialchars($goldDescription, ENT_QUOTES, 'UTF-8')); ?><br>
+                Rate: <font color="#aa893b"><b><?php echo (int)$goldSettings['rate']; ?> Gold Coin(s)</b></font> per <?php echo (int)$goldSettings['unit']; ?> gold. Min: <?php echo (int)$goldSettings['min']; ?> / Max: <?php echo (int)$goldSettings['max']; ?>.
             </div>
             
             <div class="container_3 account-wide" align="center">
@@ -143,10 +156,10 @@ $TPL->LoadHeader();
                
                	<!-- SELECT Levels -->
                		<div style="display:inline-block; vertical-align: top; top: 3px;">
-               			<input type="text" maxlength="6" value="1000" name="amount" id="gold-amount" data-price="1" />
+               			<input type="text" maxlength="6" value="<?php echo (int)$goldSettings['min']; ?>" name="amount" id="gold-amount" data-price="<?php echo (int)warcry_purchase_gold_cost($goldSettings['min']); ?>" data-unit="<?php echo (int)$goldSettings['unit']; ?>" data-rate="<?php echo (int)$goldSettings['rate']; ?>" data-min="<?php echo (int)$goldSettings['min']; ?>" data-max="<?php echo (int)$goldSettings['max']; ?>" />
                         <div style="position: absolute; top: 0px; left: 0px; color: #6c6c6c; line-height: 34px; text-align: right; width: 300px; height: 34px; pointer-events: none;">
                         	<p style="color: #e5d6aa; font-size: 16px;">
-                            	<span id="cost-amount" style="font-weight: bold;">1</span> Gold Coins
+                            	<span id="cost-amount" style="font-weight: bold;"><?php echo (int)warcry_purchase_gold_cost($goldSettings['min']); ?></span> Gold Coins
                             </p>
                         </div>
                     </div>

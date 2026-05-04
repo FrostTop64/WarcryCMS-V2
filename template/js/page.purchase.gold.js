@@ -33,26 +33,31 @@ var PurchaseGold =
 			//Calculate the cost
 			var amount = parseInt($(this).val());
 			//get the left overs
-			var leftOver = amount % 1000;
+			var unit = parseInt($('#gold-amount').attr('data-unit')) || 1000;
+			var rate = parseInt($('#gold-amount').attr('data-rate')) || 1;
+			var min = parseInt($('#gold-amount').attr('data-min')) || unit;
+			var max = parseInt($('#gold-amount').attr('data-max')) || 100000;
+			if (isNaN(amount) || amount < min) amount = min;
+			var leftOver = amount % unit;
 			
 			//any left over costs +1 gold coin
 			if (leftOver > 0)
 			{
 				amount -= leftOver;
-				amount += 1000;
+				amount += unit;
 				
 				PurchaseGold.AmountUpdateTimeout = setTimeout(function(){ $('#gold-amount').val(amount); }, 700);
 			}
 			
-			//gold limit is 100k
-			if (amount > 100000)
+			//gold limit from admin
+			if (amount > max)
 			{
-				amount = 100000;
+				amount = max;
 				PurchaseGold.AmountUpdateTimeout = setTimeout(function(){ $('#gold-amount').val(amount); }, 700);
 			}
 			
 			//calculate the price
-			var price = amount / 1000;
+			var price = Math.ceil(amount / unit) * rate;
 			
 			//update the price
 			$('#cost-amount').html(price);

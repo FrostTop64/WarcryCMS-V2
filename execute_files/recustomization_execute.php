@@ -16,6 +16,8 @@ $CORE->load_CoreModule('purchaseLog');
 //load the sendmail class
 $CORE->load_ServerModule('commands');
 $CORE->load_CoreModule('accounts.finances');
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('recustomization')) { $ERRORS->NewInstance('pStore_recustomization'); $ERRORS->Add('This account module is currently disabled.'); $ERRORS->Check('/index.php?page=account'); }
 
 //prepare the sendmail class						
 $command = new server_Commands();
@@ -36,7 +38,7 @@ $character = (isset($_POST['character']) ? $_POST['character'] : false);
 $RealmId = $CURUSER->GetRealm();
 
 //define how much a faction change is going to cost
-$recustomizationPrice = 5;
+$recustomizationPrice = warcry_account_module_price('recustomization', 5);
 
 if (!$character)
 {
