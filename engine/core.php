@@ -5,6 +5,8 @@ error_reporting(E_ALL);
 
 define('init_engine', true);
 
+require_once __DIR__ . '/security/hardening.php';
+
 ###################################################################################
 ## FILE INCLUSION #################################################################
 ###################################################################################
@@ -90,13 +92,14 @@ class CORE
 			try 
 			{
 				//Construct PDO
-				$obj = new PDO('mysql:dbname='.$this->config['DatabaseName'].'; host='.$this->config['DatabaseHost'].';', $this->config['DatabaseUser'], $this->config['DatabasePass'], NULL);
+				$obj = new PDO('mysql:dbname='.$this->config['DatabaseName'].'; host='.$this->config['DatabaseHost'].'; charset='.$this->config['DatabaseEncoding'].';', $this->config['DatabaseUser'], $this->config['DatabasePass'], array(PDO::ATTR_EMULATE_PREPARES => false, PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES '".$this->config['DatabaseEncoding']."'"));
 				
 				//set error handler exception
 				$obj->setAttribute(PDO::ATTR_ERRMODE, $PDO_config['errorHandler']);
 				
 				//set default fetch method
 				$obj->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $PDO_config['fetch']);
+			$obj->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 				
 				//set encoding
 				$obj->query("SET NAMES '".$this->config['DatabaseEncoding']."'");
@@ -125,13 +128,14 @@ class CORE
 			try 
 			{
 				//Construct PDO
-				$obj = new PDO('mysql:dbname='.$auth_config['DatabaseName'].'; host='.$auth_config['DatabaseHost'].';', $auth_config['DatabaseUser'], $auth_config['DatabasePass'], NULL);
+				$obj = new PDO('mysql:dbname='.$auth_config['DatabaseName'].'; host='.$auth_config['DatabaseHost'].'; charset='.$auth_config['DatabaseEncoding'].';', $auth_config['DatabaseUser'], $auth_config['DatabasePass'], array(PDO::ATTR_EMULATE_PREPARES => false, PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES '".$auth_config['DatabaseEncoding']."'"));
 				
 				//set error handler exception
 				$obj->setAttribute(PDO::ATTR_ERRMODE, $PDO_config['errorHandler']);
 				
 				//set default fetch method
 				$obj->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $PDO_config['fetch']);
+			$obj->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 				
 				//set encoding
 				$obj->query("SET NAMES '".$auth_config['DatabaseEncoding']."'");
@@ -161,13 +165,14 @@ class CORE
 			try 
 			{
 				//Construct PDO
-				$obj = new PDO('mysql:dbname='.$config['name'].'; host='.$config['host'].';', $config['user'], $config['pass'], NULL);
+				$obj = new PDO('mysql:dbname='.$config['name'].'; host='.$config['host'].'; charset='.$config['encoding'].';', $config['user'], $config['pass'], array(PDO::ATTR_EMULATE_PREPARES => false, PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES '".$config['encoding']."'"));
 			
 				//set error handler exception
 				$obj->setAttribute(PDO::ATTR_ERRMODE, $PDO_config['errorHandler']);
 			
 				//set default fetch method
 				$obj->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $PDO_config['fetch']);
+			$obj->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 			
 				//set encoding
 				$obj->query("SET NAMES '".$config['encoding']."'");

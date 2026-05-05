@@ -5,7 +5,7 @@ include_once 'engine/initialize.php';
 define('init_pages', true);
 define('is_forums', true);
 
-$pageName = (isset($_GET['page']) and !empty($_GET['page'])) ? $_GET['page'] : 'home';
+$pageName = (isset($_GET['page']) && $_GET['page'] !== '') ? preg_replace('/[^a-zA-Z0-9_\-=]/', '', (string)$_GET['page']) : 'home';
 
 //list the allowed pages
 $allowed = array(

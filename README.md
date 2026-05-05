@@ -116,9 +116,10 @@ config.php
 
 ## 👤 Author
 Warcry main project creator 
-Chompi
+Chompi coded it, EvilSystem designed (2017)
 
-Updated/Fix & Maintained by **Frost_Top**
+
+Updated/Fix & Maintained by **Frost_Top** (2026)
 
 ---
 
