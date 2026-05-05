@@ -12,7 +12,7 @@ $allowed = array(
     'news', 'news-post', 'news-edit',
     'articles', 'new-article', 'edit-article',
     'store', 'store-add',
-    'media', 'movie-add',
+    'media', 'movie-add', 'movie-edit',
     'forums', 'forum-cats',
     'users', 'user-preview',
     'tickets',

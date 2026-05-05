@@ -4,6 +4,7 @@ if (!defined('init_pages'))
 	header('HTTP/1.0 404 not found');
 	exit;
 }
+require_once $config['RootPath'] . '/engine/helpers/site_settings.php';
 
 ?>
 
@@ -20,7 +21,7 @@ if (!defined('init_pages'))
     <!-- REALMLIST -->
         <div class="realmlist container">
             <div class="light_normal">
-            	set realmlist <font color="#6a5e4f">logon.project-reborn.com</font>
+            	set realmlist <font color="#6a5e4f"><?php echo htmlspecialchars(function_exists('warcry_site_setting') ? warcry_site_setting('realmlist', 'logon.project-reborn.com') : 'logon.project-reborn.com'); ?></font>
             </div>
         </div>
     <!-- REALMLIST.End -->

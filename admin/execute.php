@@ -32,6 +32,7 @@ $allowed = array(
 	'grant_permissions',
 	'chuckedUpload',
 	'add_movie',
+	'edit_movie',
 	'wallpaper',
 	'edit_storeitem',
 	'add_storeitem',

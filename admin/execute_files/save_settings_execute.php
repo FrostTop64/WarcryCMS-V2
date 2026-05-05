@@ -1,19 +1,23 @@
 <?php
 if (!defined('init_executes')) { header('HTTP/1.0 404 not found'); exit; }
 $DB->query("CREATE TABLE IF NOT EXISTS `site_settings` (`name` varchar(64) NOT NULL, `value` text NOT NULL, PRIMARY KEY (`name`)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-function setting_save($DB, $name, $value) { $q=$DB->prepare("REPLACE INTO `site_settings` (`name`,`value`) VALUES (?,?)"); $q->execute(array($name, $value)); }
+function wc_setting_save($DB, $name, $value) { $q=$DB->prepare("REPLACE INTO `site_settings` (`name`,`value`) VALUES (?,?)"); $q->execute(array($name, $value)); }
 $siteName = isset($_POST['site_name']) ? trim($_POST['site_name']) : 'Warcry';
-$copyright = isset($_POST['copyright']) ? trim($_POST['copyright']) : '';
+$realmlist = isset($_POST['realmlist']) ? trim($_POST['realmlist']) : 'logon.project-reborn.com';
+$footer = isset($_POST['footer_copyright']) ? trim($_POST['footer_copyright']) : '';
 $homeWelcomeTitle = isset($_POST['home_welcome_title']) ? trim($_POST['home_welcome_title']) : 'Welcome to Warcry CMS';
 $homeWelcomeText = isset($_POST['home_welcome_text']) ? trim($_POST['home_welcome_text']) : '';
 if ($siteName === '') $siteName = 'Warcry';
-if ($copyright === '') $copyright = 'Copyright &copy; <b>Warcry CMS</b>&trade; 2026. All Rights Reserved.';
+if ($realmlist === '') $realmlist = 'logon.project-reborn.com';
+if ($footer === '') $footer = 'Copyright &copy; <b>WarcryCMS</b>&trade; 2026. All Rights Reserved.';
 if ($homeWelcomeTitle === '') $homeWelcomeTitle = 'Welcome to Warcry CMS';
 if ($homeWelcomeText === '') $homeWelcomeText = "We are a growing server with 2 realms 1 blizzlike and 1 fun realm instant 255 with much custom content.\nIf you are looking forward to join our team or have any questions, please join our Discord channel or create a topic on the forum!";
-setting_save($DB, 'site_name', $siteName);
-setting_save($DB, 'copyright', $copyright);
-setting_save($DB, 'home_welcome_title', $homeWelcomeTitle);
-setting_save($DB, 'home_welcome_text', $homeWelcomeText);
+wc_setting_save($DB, 'site_name', $siteName);
+wc_setting_save($DB, 'realmlist', $realmlist);
+wc_setting_save($DB, 'footer_copyright', $footer);
+wc_setting_save($DB, 'copyright', $footer);
+wc_setting_save($DB, 'home_welcome_title', $homeWelcomeTitle);
+wc_setting_save($DB, 'home_welcome_text', $homeWelcomeText);
 if (isset($_FILES['favicon']) && is_uploaded_file($_FILES['favicon']['tmp_name'])) {
     $allowed = array('ico','png','jpg','jpeg','gif','webp');
     $ext = strtolower(pathinfo($_FILES['favicon']['name'], PATHINFO_EXTENSION));
@@ -22,7 +26,8 @@ if (isset($_FILES['favicon']) && is_uploaded_file($_FILES['favicon']['tmp_name']
         if (!is_dir($dir)) mkdir($dir, 0775, true);
         $file = 'favicon.'.$ext;
         if (move_uploaded_file($_FILES['favicon']['tmp_name'], $dir.'/'.$file)) {
-            setting_save($DB, 'favicon', 'uploads/settings/'.$file);
+            wc_setting_save($DB, 'favicon_path', 'uploads/settings/'.$file);
+            wc_setting_save($DB, 'favicon', 'uploads/settings/'.$file);
         }
     }
 }

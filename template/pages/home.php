@@ -264,7 +264,7 @@ if ($config['IMPORTANT_NOTICE']['ENABLE'] == true)
 						//Check if we have a chosen movie
 						if (!$ChooseMovieId)
 						{
-							$res = $DB->query("SELECT `id` FROM `movies` ORDER BY `id` DESC LIMIT 1;");
+							$res = $DB->query("SELECT `id` FROM `movies` WHERE `status` = 1 ORDER BY `id` DESC LIMIT 1;");
 							
 							if ($res->rowCount() > 0)
 							{
@@ -278,22 +278,21 @@ if ($config['IMPORTANT_NOTICE']['ENABLE'] == true)
 						}
 						
 						//get the chosen movie
-						$res = $DB->prepare("SELECT `id`, `name`, `short_text`, `youtube`, `image`, `dirname` FROM `movies` WHERE `id` = :id LIMIT 1;");
+						$res = $DB->prepare("SELECT `id`, `name`, `short_text`, `youtube`, `image`, `dirname` FROM `movies` WHERE `id` = :id AND `status` = 1 LIMIT 1;");
 						$res->bindParam(':id', $ChooseMovieId, PDO::PARAM_INT);
 						$res->execute();
 						
 						if ($res->rowCount() > 0)
 						{
 							$row = $res->fetch();
+							$youtubeId = '';
+							if (preg_match('~(?:v=|youtu\.be/|embed/|shorts/|live/)([A-Za-z0-9_-]{6,})~', (string)$row['youtube'], $m)) { $youtubeId = $m[1]; }
+							$thumbUrl = ($youtubeId != '') ? 'https://img.youtube.com/vi/' . $youtubeId . '/mqdefault.jpg' : ($config['BaseURL'] . '/uploads/media/movies/' . $row['dirname'] . '/thumbnails/index_' . $row['image']);
 								
-							echo '
-							<a title="', $row['name'], '" href="index.php?page=open-video&id=', $row['id'], '">
-								<!--Video THUMB Preview-->
-								<div class="image-thumb-preview" style="background-image:url(\'', $config['BaseURL'], '/uploads/media/movies/', $row['dirname'], '/thumbnails/index_', $row['image'], '\');"></div>
-								<div class="play-button-small"></div>
-							</a>';
-						}
-						unset($ChooseMovieId, $res);
+							echo '<a title="' . htmlspecialchars(stripslashes($row['name']), ENT_QUOTES, 'UTF-8') . '" href="index.php?page=open-video&id=' . (int)$row['id'] . '">';
+							echo '<div class="image-thumb-preview" style="background-image:url(\'' . htmlspecialchars($thumbUrl, ENT_QUOTES, 'UTF-8') . '\');"></div>';
+							echo '<div class="play-button-small"></div></a>';
+						}						unset($ChooseMovieId, $res);
 					?>
                     </div>
                     
