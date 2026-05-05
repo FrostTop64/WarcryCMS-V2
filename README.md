@@ -115,8 +115,10 @@ config.php
 ---
 
 ## 👤 Author
+Warcry main project creator 
+Chompi
 
-Updated & Fix by **Frost_Top**
+Updated/Fix & Maintained by **Frost_Top**
 
 ---
 
