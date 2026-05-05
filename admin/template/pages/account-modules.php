@@ -11,7 +11,7 @@ if ($error = $ERRORS->DoPrint('account_modules')) { echo $error; }
 $d = warcry_account_modules_defaults();
 foreach ($d as $k => $v) { $d[$k] = warcry_account_module_get($k, $v); }
 
-$allowed_categories = array('shop', 'character-services', 'account-services', 'misc');
+$allowed_categories = array('shop', 'level-rewards', 'character-services', 'account-services', 'misc');
 $category = isset($_GET['cat']) ? strtolower(trim($_GET['cat'])) : 'shop';
 if (!in_array($category, $allowed_categories, true)) { $category = 'shop'; }
 
@@ -20,6 +20,11 @@ $tabs = array(
         'label' => 'Shop',
         'icon'  => '💰',
         'desc'  => 'Gold, shop services and economy modules.'
+    ),
+    'level-rewards' => array(
+        'label' => 'Level Rewards',
+        'icon'  => '⭐',
+        'desc'  => 'Character level packages, reward gold, bags and costs.'
     ),
     'character-services' => array(
         'label' => 'Character Services',
@@ -108,6 +113,53 @@ $tabs = array(
                 padding-bottom: 10px;
                 border-bottom: 1px solid rgba(255,255,255,0.08);
             }
+            .warcry-level-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 14px;
+                margin-top: 12px;
+            }
+            .warcry-level-package {
+                padding: 14px;
+                border-radius: 10px;
+                background: rgba(0,0,0,0.20);
+                border: 1px solid rgba(255,255,255,0.075);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            }
+            .warcry-level-package h4 {
+                margin: 0 0 12px 0;
+                padding-bottom: 9px;
+                border-bottom: 1px solid rgba(218,50,65,0.45);
+                color: #fff;
+            }
+            .warcry-mini-field {
+                margin-bottom: 11px;
+            }
+            .warcry-mini-field label {
+                display: block;
+                float: none !important;
+                width: auto !important;
+                margin: 0 0 5px 0 !important;
+                font-size: 12px;
+                opacity: .86;
+            }
+            .warcry-mini-field input {
+                width: 100% !important;
+                box-sizing: border-box;
+            }
+            .warcry-two-cols {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .warcry-three-cols {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 10px;
+            }
+            @media (max-width: 760px) {
+                .warcry-two-cols, .warcry-three-cols { grid-template-columns: 1fr; }
+            }
             .warcry-empty-category {
                 padding: 22px;
                 border-radius: 8px;
@@ -134,6 +186,7 @@ $tabs = array(
             </div>
 
             <form method="post" action="execute.php?take=account_modules" class="form pro-form">
+                <input type="hidden" name="return_cat" value="<?php echo ham($category); ?>">
                 <?php if ($category === 'shop'): ?>
                     <div class="warcry-module-card">
                         <h3>Purchase In-Game Gold</h3>
@@ -170,6 +223,72 @@ $tabs = array(
                             </div>
                         </section>
                     </div>
+
+                <?php elseif ($category === 'level-rewards'): ?>
+                    <div class="warcry-module-card">
+                        <h3>Character Level Up</h3>
+                        <section>
+                            <label>Enabled</label>
+                            <div class="field-inline">
+                                <select name="levels_enabled">
+                                    <option value="1"<?php echo $d['levels_enabled']=='1'?' selected':''; ?>>Enabled</option>
+                                    <option value="0"<?php echo $d['levels_enabled']=='0'?' selected':''; ?>>Disabled</option>
+                                </select>
+                            </div>
+                        </section>
+                        <section>
+                            <label>Title</label>
+                            <div class="field-stack"><input type="text" name="levels_title" value="<?php echo ham($d['levels_title']); ?>"></div>
+                        </section>
+                        <section>
+                            <label>Description</label>
+                            <div class="field-stack"><textarea name="levels_description" rows="3"><?php echo ham($d['levels_description']); ?></textarea></div>
+                        </section>
+                    </div>
+
+                    <div class="warcry-module-card">
+                        <h3>Level Packages</h3>
+                        <div class="notice">Edit each package cleanly without mixing it with the shop gold module.</div>
+                        <div class="warcry-level-grid">
+                            <?php for ($i = 1; $i <= 3; $i++): ?>
+                                <div class="warcry-level-package">
+                                    <h4>Package <?php echo (int)$i; ?></h4>
+
+                                    <div class="warcry-two-cols">
+                                        <div class="warcry-mini-field">
+                                            <label>Target Level</label>
+                                            <input type="text" name="levels_<?php echo (int)$i; ?>_level" value="<?php echo ham($d['levels_'.$i.'_level']); ?>" placeholder="60">
+                                        </div>
+                                        <div class="warcry-mini-field">
+                                            <label>Cost Gold Coins</label>
+                                            <input type="text" name="levels_<?php echo (int)$i; ?>_price" value="<?php echo ham($d['levels_'.$i.'_price']); ?>" placeholder="4">
+                                        </div>
+                                    </div>
+
+                                    <div class="warcry-mini-field">
+                                        <label>Reward Gold</label>
+                                        <input type="text" name="levels_<?php echo (int)$i; ?>_reward_gold" value="<?php echo ham($d['levels_'.$i.'_reward_gold']); ?>" placeholder="2000">
+                                    </div>
+
+                                    <div class="warcry-three-cols">
+                                        <div class="warcry-mini-field">
+                                            <label>Bags Amount</label>
+                                            <input type="text" name="levels_<?php echo (int)$i; ?>_bags" value="<?php echo ham($d['levels_'.$i.'_bags']); ?>" placeholder="4">
+                                        </div>
+                                        <div class="warcry-mini-field">
+                                            <label>Bag Item ID</label>
+                                            <input type="text" name="levels_<?php echo (int)$i; ?>_bag_item" value="<?php echo ham($d['levels_'.$i.'_bag_item']); ?>" placeholder="14155">
+                                        </div>
+                                        <div class="warcry-mini-field">
+                                            <label>Bag Slots</label>
+                                            <input type="text" name="levels_<?php echo (int)$i; ?>_bag_slots" value="<?php echo ham($d['levels_'.$i.'_bag_slots']); ?>" placeholder="16">
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+
                 <?php elseif ($category === 'character-services'): ?>
                     <div class="warcry-module-card">
                         <h3>Faction Change</h3>

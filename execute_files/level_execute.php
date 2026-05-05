@@ -7,6 +7,13 @@ if (!defined('init_executes'))
 
 $CORE->loggedInOrReturn();
 
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('levels')) {
+	$ERRORS->NewInstance('pStore_levels');
+	$ERRORS->Add('This account module is currently disabled.');
+	$ERRORS->Check('/index.php?page=account');
+}
+
 //load the coin activity handler
 $CORE->load_CoreModule('coin.activity');
 //load the characters handling class

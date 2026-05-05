@@ -7,10 +7,23 @@ if (!defined('init_pages'))
 
 $CORE->loggedInOrReturn();
 
+require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+if (!warcry_account_module_enabled('levels')) {
+    $TPL->SetTitle('Service Disabled');
+    $TPL->LoadHeader();
+    echo '<div class="content_holder"><div class="container_2 account"><div class="cont-image"><div class="container_3 account_sub_header"><div class="grad"><div class="page-title">Service Disabled</div><a href="'.$config['BaseURL'].'/index.php?page=account">Back to account</a></div></div><p style="padding:30px;text-align:center;">This account module is currently disabled by the staff.</p></div></div></div>';
+    $TPL->LoadFooter();
+    exit;
+}
+$levelsTitle = warcry_account_module_get('levels_title', 'Character Level Up');
+$levelsDescription = warcry_account_module_get('levels_description', '');
+$levelsDataObject = new LevelsData();
+$levelPackages = $levelsDataObject->getAll();
+
 $RealmId = $CURUSER->GetRealm();
 
 //Set the title
-$TPL->SetTitle('Character Level Up');
+$TPL->SetTitle($levelsTitle);
 //Print the header
 $TPL->LoadHeader();
 
@@ -55,7 +68,7 @@ $TPL->LoadHeader();
    
             <div class="container_3 account_sub_header">
                 <div class="grad">
-                    <div class="page-title">Levels</div>
+                    <div class="page-title"><?php echo htmlspecialchars($levelsTitle, ENT_QUOTES, 'UTF-8'); ?></div>
                     <a href="<?php echo $config['BaseURL'], '/index.php?page=account'; ?>">Back to account</a>
                 </div>
             </div>    
@@ -64,7 +77,7 @@ $TPL->LoadHeader();
       	<div class="faction-change">
       		
        		<div class="page-desc-holder">
-                
+                <?php echo nl2br(htmlspecialchars($levelsDescription, ENT_QUOTES, 'UTF-8')); ?>
             </div>
             
             <div class="container_3 account-wide" align="center">
@@ -146,35 +159,20 @@ $TPL->LoadHeader();
                     
                			<div id="choose-level" style="display:none;"><p class="choose-level">Choose level</p></div>
                         
-	               		<!-- Level 60 / 2k Gold / 4 x 16 slot bags -->
-	                    <div id="levels-option-one" style="display:none;">
-                        	<div class="level-option">
-                            	<b>Level 60</b> <i>(4 Gold Coins)</i>
-                                <span>Level 60, 2k Gold and 4x 16 slot bags</span>
+                        <?php foreach ($levelPackages as $pkgId => $pkg): ?>
+                            <div id="levels-option-<?php echo (int)$pkgId; ?>" style="display:none;">
+                                <div class="level-option">
+                                    <b>Level <?php echo (int)$pkg['level']; ?></b> <i>(<?php echo (int)$pkg['price']; ?> Gold Coins)</i>
+                                    <span>Level <?php echo (int)$pkg['level']; ?>, <?php echo number_format((int)$pkg['rewardGold']); ?> Gold and <?php echo (int)$pkg['bags']; ?>x <?php echo (int)$pkg['bagSlots']; ?> slot bags</span>
+                                </div>
                             </div>
-	                    </div>
-                        
-	                    <!-- Level 70 / 3k Gold / 4 x 18 slot bags -->
-	                    <div id="levels-option-two" style="display:none;">
-                        	<div class="level-option">
-                            	<b>Level 70</b> <i>(6 Gold Coins)</i>
-                                <span>Level 70, 3k Gold and 4x 18 slot bags</span>
-                            </div>
-	                    </div>
-                        
-	                    <!-- Level 80 / 4k Gold / 4 x 20 slot bags -->
-	                    <div id="levels-option-three" style="display:none;">
-                        	<div class="level-option">
-                            	<b>Level 80</b> <i>(8 Gold Coins)</i>
-                                <span>Level 80, 5k Gold and 4x 20 slot bags<span>
-                            </div>
-	                    </div>
+                        <?php endforeach; ?>
                     
 	               		<select styled="true" id="levels-select" name="levels">
                         	<option selected="selected" disabled="disabled" value="null" getHtmlFrom="#choose-level"></option>
-	                    	<option value="1" getHtmlFrom="#levels-option-one"></option>
-	                        <option value="2" getHtmlFrom="#levels-option-two"></option>
-	                        <option value="3" getHtmlFrom="#levels-option-three"></option>
+                            <?php foreach ($levelPackages as $pkgId => $pkg): ?>
+                                <option value="<?php echo (int)$pkgId; ?>" getHtmlFrom="#levels-option-<?php echo (int)$pkgId; ?>"></option>
+                            <?php endforeach; ?>
 	                    </select>
                     </div>
                <!-- SELECT Levels.END -->
