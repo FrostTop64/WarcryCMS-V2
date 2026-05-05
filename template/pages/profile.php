@@ -97,12 +97,44 @@ function wa_race_portrait_icon($race,$gender){
     $slug=isset($r[$race])?$r[$race]:'human';
     return 'achievement_character_'.$slug.'_'.$gender;
 }
+function wa_sql_ident($name){
+    // Safe SQL identifier for database/table names used in SHOW TABLES / JOINs.
+    $name = (string)$name;
+    if(!preg_match('/^[A-Za-z0-9_]+$/', $name)) return '';
+    return '`'.str_replace('`','``',$name).'`';
+}
+function wa_sql_quote($db,$value){
+    try { return $db->quote((string)$value); } catch(Exception $e) { return '\'' . str_replace('\'', '\\\'', (string)$value) . '\''; }
+}
 function wa_world_db_name($db){
     static $cached=null; if($cached!==null) return $cached;
-    try { $rows=$db->query('SHOW DATABASES')->fetchAll(PDO::FETCH_COLUMN); foreach($rows as $n){ if(preg_match('/(world|acore_world|azerothcore_world)$/i',$n)){ try{ $x=$db->query('SHOW TABLES FROM `'.$n.'` LIKE "item_template"')->fetchColumn(); if($x){$cached=$n; return $cached;} }catch(Exception $e){} } } } catch(Exception $e) {}
+    try {
+        $rows=$db->query('SHOW DATABASES')->fetchAll(PDO::FETCH_COLUMN);
+        foreach($rows as $n){
+            if(!preg_match('/^[A-Za-z0-9_]+$/', $n)) continue;
+            if(preg_match('/(world|acore_world|azerothcore_world)$/i',$n)){
+                try{
+                    $dbName = wa_sql_ident($n);
+                    if($dbName==='') continue;
+                    $x=$db->query('SHOW TABLES FROM '.$dbName.' LIKE '.wa_sql_quote($db,'item_template'))->fetchColumn();
+                    if($x){$cached=$n; return $cached;}
+                }catch(Exception $e){}
+            }
+        }
+    } catch(Exception $e) {}
     $cached='world'; return $cached;
 }
-function wa_table_exists($db,$table){ try{ $s=$db->prepare('SHOW TABLES LIKE :t'); $s->execute(array(':t'=>$table)); return (bool)$s->fetchColumn(); }catch(Exception $e){return false;} }
+function wa_table_exists($db,$table){
+    // MySQL does not reliably support placeholders in SHOW TABLES on all PDO/mysqlnd versions.
+    // Validate table name first, then quote it safely to avoid SQL injection and PHP fatal errors.
+    $table = (string)$table;
+    if(!preg_match('/^[A-Za-z0-9_]+$/', $table)) return false;
+    try{
+        $sql = 'SHOW TABLES LIKE '.wa_sql_quote($db,$table);
+        $s=$db->query($sql);
+        return $s ? (bool)$s->fetchColumn() : false;
+    }catch(Exception $e){return false;}
+}
 function wa_get_auth($CORE,$id){ try{ $a=$CORE->AuthDatabaseConnection(); $s=$a->prepare('SELECT id, username, joindate, last_login, online, expansion FROM account WHERE id=:id LIMIT 1'); $s->execute(array(':id'=>(int)$id)); return $s->fetch(PDO::FETCH_ASSOC); }catch(Exception $e){ return false; } }
 function wa_get_cms($DB,$id){ try{ $s=$DB->prepare('SELECT `id`, `displayName`, `silver`, `gold`, `country`, `avatar`, `avatarType`, `rank`, `status`, `selected_realm` FROM `account_data` WHERE `id`=:id LIMIT 1'); $s->execute(array(':id'=>(int)$id)); return $s->fetch(PDO::FETCH_ASSOC); }catch(Exception $e){ return false; } }
 function wa_get_avatar($user){ if(!$user) return './resources/avatars/rookie_avatar_1.jpg'; if(defined('AVATAR_TYPE_UPLOAD') && (int)$user['avatarType']===AVATAR_TYPE_UPLOAD && !empty($user['avatar'])) return $user['avatar']; try{ $g=new AvatarGallery(); $a=$g->get((int)$user['avatar']); if($a) return './resources/avatars/'.$a->string(); }catch(Exception $e){} return './resources/avatars/rookie_avatar_1.jpg'; }
@@ -128,7 +160,7 @@ if($charDB){
             $sql='SELECT ci.slot, ii.itemEntry AS entry, COALESCE(it.name, CONCAT("Item #",ii.itemEntry)) AS name, COALESCE(it.Quality,0) AS Quality, COALESCE(it.ItemLevel,0) AS ItemLevel, COALESCE(it.InventoryType,0) AS InventoryType, COALESCE(it.class,0) AS itemClass, COALESCE(it.subclass,0) AS subclass, ii.durability, ii.count
                   FROM character_inventory ci
                   INNER JOIN item_instance ii ON ii.guid=ci.item
-                  LEFT JOIN `'.$world.'`.item_template it ON it.entry=ii.itemEntry
+                  LEFT JOIN '.wa_sql_ident($world).'.item_template it ON it.entry=ii.itemEntry
                   WHERE ci.guid=:g AND ci.bag=0 AND ci.slot BETWEEN 0 AND 18
                   ORDER BY ci.slot ASC';
             $s=$charDB->prepare($sql); $s->execute(array(':g'=>(int)$selected['guid']));
