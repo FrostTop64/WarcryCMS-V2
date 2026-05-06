@@ -52,7 +52,9 @@ services:
       - ./docker/mysql/init/20-auth-stub.sql:/docker-entrypoint-initdb.d/20-auth-stub.sql:ro
       - ./docker/mysql/init/30-grants.sql:/docker-entrypoint-initdb.d/30-grants.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
+      # MYSQL_PWD is read by mysqladmin; passing it via env keeps the password
+      # off the command line (and out of process listings / SAST scanners).
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_ROOT_PASSWORD\" mysqladmin ping -h 127.0.0.1 -uroot --silent"]
       interval: 5s
       timeout: 5s
       retries: 30
