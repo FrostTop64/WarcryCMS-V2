@@ -70,6 +70,16 @@ if ($action == 'upload')
             if (function_exists('imagecreatefromwebp')) { $allowed['image/webp'] = 'webp'; }
             if (!isset($allowed[$mime])) { $ERRORS->Add('Only JPG, PNG, GIF' . (function_exists('imagecreatefromwebp') ? ', WEBP' : '') . ' images are allowed.'); }
             if (filesize($_FILES['avatar']['tmp_name']) > 5 * 1024 * 1024) { $ERRORS->Add('The avatar is too big. Maximum size is 5 MB.'); }
+
+            //cross-check via finfo so getimagesize spoofing alone isn't enough
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $finfoMime = $finfo ? finfo_file($finfo, $_FILES['avatar']['tmp_name']) : false;
+                if ($finfo) finfo_close($finfo);
+                if ($finfoMime !== false && !isset($allowed[$finfoMime])) {
+                    $ERRORS->Add('File content does not match an allowed image type.');
+                }
+            }
         }
     }
 
@@ -79,7 +89,7 @@ if ($action == 'upload')
     $id = wc_avatars_next_id($items);
     $ext = $allowed[$mime];
     $base = wc_avatars_safe_name(pathinfo($_FILES['avatar']['name'], PATHINFO_FILENAME));
-    $fileName = 'custom_avatar_' . $id . '-' . substr(md5(uniqid('', true)), 0, 6) . '-' . $base . '.' . $ext;
+    $fileName = 'custom_avatar_' . $id . '-' . bin2hex(random_bytes(4)) . '-' . $base . '.' . $ext;
     $target = $avatarDir . '/' . $fileName;
 
     if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $target))
