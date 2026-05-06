@@ -205,13 +205,30 @@ $TPL->LoadHeader();
 								)
 							);
 
-							echo '	<script>
-									$(document).ready(function()
-									{
-										$(\'#store-item-container\').WarcryStore(\'changeConfig\', ', json_encode($storeConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ');
-										$(\'#store-item-container\').WarcryStore(\'loadPage\', \'first\');
-									});
-							  		</script>';
+							$storeConfigJson = json_encode($storeConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+							$storeConfigSafe = htmlspecialchars($storeConfigJson, ENT_NOQUOTES, 'UTF-8');
+
+
+							echo '<script type="application/json" id="warcry-store-config">', $storeConfigSafe, '</script>';
+
+							echo '<script>
+
+								$(document).ready(function()
+
+								{
+
+									var cfgNode = document.getElementById("warcry-store-config");
+
+									var storeConfig = cfgNode ? JSON.parse(cfgNode.textContent || cfgNode.innerText || "{}") : {};
+
+									$("#store-item-container").WarcryStore("changeConfig", storeConfig);
+
+									$("#store-item-container").WarcryStore("loadPage", "first");
+
+								});
+
+							</script>';
 						}
 						else
 						{
