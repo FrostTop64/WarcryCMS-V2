@@ -1,4 +1,8 @@
+<div align="center">
+
 <img src="https://i.ibb.co/zT2Jp9vQ/Warcry-CMS-Png.png" width="440"/>
+
+</div>
 
 Modern World of Warcraft CMS rebuilt for AzerothCore.
 
