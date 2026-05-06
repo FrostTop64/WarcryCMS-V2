@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 define('init_engine', true);
 
 require_once __DIR__ . '/security/hardening.php';
+require_once __DIR__ . '/security/datatables.php';
 
 ###################################################################################
 ## FILE INCLUSION #################################################################
@@ -720,7 +721,19 @@ class CORE
 	
 	public function setCookie($key, $value, $expire, $path = '/', $domain = '')
 	{
-		setcookie($key . '_wcw', $value, $expire, $path, $domain, isset($_SERVER["HTTPS"]), true);
+		$secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+		if (PHP_VERSION_ID >= 70300) {
+			setcookie($key . '_wcw', $value, array(
+				'expires'  => $expire,
+				'path'     => $path,
+				'domain'   => $domain,
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => 'Lax',
+			));
+		} else {
+			setcookie($key . '_wcw', $value, $expire, $path . '; samesite=Lax', $domain, $secure, true);
+		}
 	}
 	
 	public function removeCookie($key, $path = '/', $domain = '')
