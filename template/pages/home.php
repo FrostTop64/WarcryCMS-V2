@@ -9,6 +9,12 @@ require_once $config['RootPath'] . '/engine/helpers/site_settings.php';
 $homeWelcomeTitle = warcry_site_setting('home_welcome_title', 'Welcome to Warcry CMS');
 $homeWelcomeText = warcry_site_setting('home_welcome_text', "We are a growing server with 2 realms 1 blizzlike and 1 fun realm instant 255 with much custom content.\nIf you are looking forward to join our team or have any questions, please join our Discord channel or create a topic on the forum!");
 
+$homeSocials = array(
+    array('key' => 'facebook', 'label' => warcry_site_setting('social_facebook_label', 'Facebook'), 'url' => warcry_site_setting('social_facebook_url', ''), 'enabled' => warcry_site_setting('social_facebook_enabled', '1')),
+    array('key' => 'twitter',  'label' => warcry_site_setting('social_twitter_label', 'Twitter'),  'url' => warcry_site_setting('social_twitter_url', ''),  'enabled' => warcry_site_setting('social_twitter_enabled', '1')),
+    array('key' => 'youtube',  'label' => warcry_site_setting('social_youtube_label', 'YouTube'),  'url' => warcry_site_setting('social_youtube_url', 'http://www.youtube.com/user/WarcryWoW1'), 'enabled' => warcry_site_setting('social_youtube_enabled', '1')),
+);
+
 //Set template parameters
 $TPL->SetParameters(array(
 	'title'		=> 'Home',
@@ -110,137 +116,29 @@ if ($config['IMPORTANT_NOTICE']['ENABLE'] == true)
 	<!-- SOCIAL Media -->
 	<div class="social-media container">
         <div class="media-buttons-holder"><!-- Media buttons holder -->
-        		
-                <?php
-					####################################################
-					####### FACEBOOK 
-					
-					$FB_BTN_STATE = '';
-					//check if there is user and if he liked us on FB
-					if ($CURUSER->isOnline())
-					{
-						//get the status of FB
-						if ($CURUSER->getSocial(APP_FACEBOOK) == STATUS_POSITIVE)
-						{
-							$FB_BTN_STATE = 'active';
-						}
-					}
-					
-					####################################################
-					####### TWITTER
-					$TWT_BTN_STATE = '';
-					//check if there is user and if he liked us on twitter
-					if ($CURUSER->isOnline())
-					{
-						//get the status of twitter
-						if ($CURUSER->getSocial(APP_TWITTER) == STATUS_POSITIVE)
-						{
-							$TWT_BTN_STATE = 'active';
-						}
-					}
-				?>
-        
-		         <!-- Facebook -->
-		         <div class="media-wrapp">
-                    <div class="media-button-holder">
-                    
-	                 	<!-- New Media Button look -->
-	                 	<div class="facebook media-new-design" id="facebook-button">
-                        	<div class="button-container">
-	                    		<div class="new-design-left-part"><p class="icon <?php echo $FB_BTN_STATE; ?>" id="facebook-icon"></p><span>Like</span></div>
-                                <?php
-									//manage active/inactive state of Facebook button
-									if ($FB_BTN_STATE == '')
-									{
-                            			echo '<div class="fb-like" data-href="', $config['FACEBOOK']['pageURL'], '" data-send="false" data-width="500" data-show-faces="false"></div>';
-									}
-									else
-									{
-										echo '<a href="', $config['FACEBOOK']['pageURL'], '" class="fb-like fb-active-hotfix" target="_blank" title="', $config['FACEBOOK']['liked_text'], '">Liked</a>';
-									}
-								?>
-                            </div>
-	                        <div class="new-design-count-cont">
-                            	<p class="arrow"></p>
-                                <?php
-                                if ($json = $CACHE->get('facebook_likes'))
-								{
-									$data = json_decode($json, true);
-									echo '<span id="facebook-likes-counter" class="do-not-load">', $data['likes'], '</span>';
-									unset($data);
-								}
-								else
-								{
-									echo '<span id="facebook-likes-counter">0</span>';
-								}
-								unset($json)
-								?>
-                           	</div>
-	                    </div>
-                        <!-- New Media Button look.End -->
-                        
-                    </div>
-		         </div>
-		            
-		         <!-- TWITTER -->
-		         <div class="media-wrapp">
-                    <div class="media-button-holder">
-                    
-	                 	<!-- New Media Button look -->
-	                 	<div class="twitter media-new-design" id="twitter-button">
-                        	<div class="button-container">
-	                    		<div class="new-design-left-part"><p class="icon <?php echo $TWT_BTN_STATE; ?>" id="twitter-icon"></p><span>Follow</span></div>
-                                 <?php
-									//manage active/inactive state of Twitter button
-									if ($TWT_BTN_STATE == '')
-									{
-                        				echo '<a href="https://twitter.com/', $config['TWITTER']['page'], '" class="twitter-follow-button">Follow</a>';
-									}
-									else
-									{
-                        				echo '<a href="https://twitter.com/', $config['TWITTER']['page'], '" class="twitter-follow-button twitter-active-hotfix" target="_blank" title="', $config['TWITTER']['following_text'], '">Follow</a>';
-									}
-								?>
-                            </div>
-	                        <div class="new-design-count-cont">
-                            	<p class="arrow"></p>
-                                <?php
-                                if ($json = $CACHE->get('twitter_stats'))
-								{
-									$data = json_decode($json, true);
-									echo '<span id="twitter-follows-counter" class="do-not-load">', $data['followers_count'], '</span>';
-									unset($data);
-								}
-								else
-								{
-									echo '<span id="twitter-follows-counter">0</span>';
-								}
-								unset($json)
-								?>
-                            </div>
-	                    </div>
-                        <!-- New Media Button look.End -->
-                        
-                    </div>
-		         </div>
-                 
-                 <?php
-				 	unset($FB_BTN_STATE, $TWT_BTN_STATE);
-				 ?>
-                 
-                 <!-- YOUTUBE -->
-		         <div class="media-wrapp">
-                    <div class="media-button-holder">
-                    
-	                 	<!-- New Media Button look -->
-	                 	<div class="youtube media-new-design">
-	                    	<a href="http://www.youtube.com/user/WarcryWoW1" target="_blank"><div class="new-design-left-part"><p class="icon"></p><span>YouTube</span></div></a>
-	                    </div>
-                        <!-- New Media Button look.End -->
-                        
-                    </div>
-		         </div>
-         
+            <?php
+                $printedSocial = false;
+                foreach ($homeSocials as $social) {
+                    $label = trim((string)$social['label']);
+                    $url = trim((string)$social['url']);
+                    $enabled = (string)$social['enabled'] === '1';
+                    if (!$enabled || $label === '' || $url === '') { continue; }
+                    $key = preg_replace('/[^a-z0-9_-]/i', '', (string)$social['key']);
+                    $printedSocial = true;
+                    echo '<div class="media-wrapp">';
+                    echo '<div class="media-button-holder">';
+                    echo '<div class="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . ' media-new-design">';
+                    echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">';
+                    echo '<div class="new-design-left-part"><p class="icon"></p><span>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span></div>';
+                    echo '</a>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</div>';
+                }
+                if (!$printedSocial) {
+                    echo '<div class="media-wrapp"><div class="media-button-holder"><div class="youtube media-new-design"><div class="new-design-left-part"><p class="icon"></p><span>No social links configured</span></div></div></div></div>';
+                }
+            ?>
          </div><!-- Media buttons holder.END -->
         <div class="gradient"></div>
 	</div>

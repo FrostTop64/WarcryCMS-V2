@@ -26,6 +26,23 @@ if (isset($_POST['security_action']) && $_POST['security_action'] === 'admin_pan
 }
 $DB->query("CREATE TABLE IF NOT EXISTS `site_settings` (`name` varchar(64) NOT NULL, `value` text NOT NULL, PRIMARY KEY (`name`)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
 function wc_setting_save($DB, $name, $value) { $q=$DB->prepare("REPLACE INTO `site_settings` (`name`,`value`) VALUES (?,?)"); $q->execute(array($name, $value)); }
+
+if (isset($_POST['settings_action']) && $_POST['settings_action'] === 'social_networks') {
+    $allowedSocials = array('facebook','twitter','youtube','discord','twitch');
+    foreach ($allowedSocials as $socialKey) {
+        $label = isset($_POST['social_'.$socialKey.'_label']) ? trim((string)$_POST['social_'.$socialKey.'_label']) : '';
+        $url = isset($_POST['social_'.$socialKey.'_url']) ? trim((string)$_POST['social_'.$socialKey.'_url']) : '';
+        $enabled = isset($_POST['social_'.$socialKey.'_enabled']) ? '1' : '0';
+        if (strlen($label) > 40) { $label = substr($label, 0, 40); }
+        if ($url !== '' && !preg_match('~^https?://~i', $url)) { $url = 'https://' . $url; }
+        if ($url !== '' && !filter_var($url, FILTER_VALIDATE_URL)) { $url = ''; }
+        wc_setting_save($DB, 'social_'.$socialKey.'_label', $label);
+        wc_setting_save($DB, 'social_'.$socialKey.'_url', $url);
+        wc_setting_save($DB, 'social_'.$socialKey.'_enabled', $enabled);
+    }
+    header('Location: '.$config['BaseURL'].'/admin/index.php?page=settings#social-networks'); exit;
+}
+
 $siteName = isset($_POST['site_name']) ? trim($_POST['site_name']) : 'Warcry';
 $realmlist = isset($_POST['realmlist']) ? trim($_POST['realmlist']) : 'logon.project-reborn.com';
 $footer = isset($_POST['footer_copyright']) ? trim($_POST['footer_copyright']) : '';

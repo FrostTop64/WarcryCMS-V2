@@ -11,8 +11,13 @@ $homeTitle = setting_get_admin($DB, 'home_welcome_title', 'Welcome to WarcryCMS 
 $homeText = setting_get_admin($DB, 'home_welcome_text', "We are a growing server with 2 realms 1 blizzlike and 1 fun realm instant 255 with much custom content.");
 $footerCopy = setting_get_admin($DB, 'footer_copyright', setting_get_admin($DB, 'copyright', 'Copyright &copy; <b>WarcryCMS</b>&trade; 2026. All Rights Reserved.'));
 $favicon = setting_get_admin($DB, 'favicon_path', setting_get_admin($DB, 'favicon', 'template/style/images/favicon.ico'));
+$socials = array(
+  'facebook' => array('title'=>'Facebook', 'label'=>setting_get_admin($DB,'social_facebook_label','Facebook'), 'url'=>setting_get_admin($DB,'social_facebook_url',''), 'enabled'=>setting_get_admin($DB,'social_facebook_enabled','1')),
+  'twitter'  => array('title'=>'Twitter / X', 'label'=>setting_get_admin($DB,'social_twitter_label','Twitter'), 'url'=>setting_get_admin($DB,'social_twitter_url',''), 'enabled'=>setting_get_admin($DB,'social_twitter_enabled','1')),
+  'youtube'  => array('title'=>'YouTube', 'label'=>setting_get_admin($DB,'social_youtube_label','YouTube'), 'url'=>setting_get_admin($DB,'social_youtube_url','http://www.youtube.com/user/WarcryWoW1'), 'enabled'=>setting_get_admin($DB,'social_youtube_enabled','1')),
+);
 ?>
-<nav id="secondary" class="disable-tabbing"><ul><li class="current"><a href="index.php?page=settings">Settings</a></li></ul></nav>
+<nav id="secondary" class="disable-tabbing"><ul><li class="current"><a href="index.php?page=settings">Site Settings</a></li><li><a href="#social-networks">Social Networks</a></li></ul></nav>
 <section id="content"><div class="tab" id="maintab"><h2>Site Settings</h2><div class="notice">Customize your public site name, realmlist, homepage welcome text, footer copyright and favicon.</div>
 <div class="admin-card"><form method="post" action="execute.php?take=save_settings" enctype="multipart/form-data" class="form pro-form">
 <?php echo function_exists('warcry_csrf_field') ? warcry_csrf_field() : ''; ?>
@@ -25,6 +30,27 @@ $favicon = setting_get_admin($DB, 'favicon_path', setting_get_admin($DB, 'favico
 <section><label>Upload New Favicon <small>Recommended: .ico or 32x32 PNG.</small></label><div class="field-stack"><input type="file" name="favicon" accept=".ico,.png,.jpg,.jpeg,.gif,.webp"></div></section>
 <section><label></label><div><button type="submit" class="button primary">Save Settings</button></div></section>
 </form></div>
+
+<div class="admin-card" id="social-networks" style="margin-top:22px;">
+<form method="post" action="execute.php?take=save_settings" class="form pro-form" autocomplete="off">
+<?php echo function_exists('warcry_csrf_field') ? warcry_csrf_field() : ''; ?>
+<input type="hidden" name="settings_action" value="social_networks">
+<h2>Social Networks</h2>
+<div class="notice">Customize the social buttons displayed on the homepage social bar. Disable a network or leave the URL empty to hide it.</div>
+<?php foreach ($socials as $key => $social): ?>
+<section>
+  <label><?php echo h($social['title']); ?> <small>Homepage social button.</small></label>
+  <div class="field-stack">
+    <label class="field-inline" style="gap:8px;"><input type="checkbox" name="social_<?php echo h($key); ?>_enabled" value="1" <?php echo ((string)$social['enabled'] === '1' ? 'checked' : ''); ?>> Enabled</label>
+    <input type="text" name="social_<?php echo h($key); ?>_label" value="<?php echo h($social['label']); ?>" maxlength="40" placeholder="Button label">
+    <input type="url" name="social_<?php echo h($key); ?>_url" value="<?php echo h($social['url']); ?>" maxlength="255" placeholder="https://...">
+  </div>
+</section>
+<?php endforeach; ?>
+<section><label></label><div><button type="submit" class="button primary">Save Social Networks</button></div></section>
+</form>
+</div>
+
 <div class="admin-card" style="margin-top:22px;">
 <form method="post" action="execute.php?take=save_settings" class="form pro-form" autocomplete="off">
 <?php echo function_exists('warcry_csrf_field') ? warcry_csrf_field() : ''; ?>
