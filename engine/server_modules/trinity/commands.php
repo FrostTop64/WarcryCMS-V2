@@ -54,7 +54,17 @@ class server_Commands
 
     private function nextId(PDO $db, $table, $column)
     {
-        $stmt = $db->query("SELECT COALESCE(MAX(`" . $column . "`), 0) + 1 AS next_id FROM `" . $table . "`");
+        // Only these core tables/columns are valid for direct mail delivery.
+        // The SQL is intentionally static so no identifier can ever come from user input.
+        if ($table === 'mail' && $column === 'id') {
+            $stmt = $db->query('SELECT COALESCE(MAX(`id`), 0) + 1 AS next_id FROM `mail`');
+        } elseif ($table === 'item_instance' && $column === 'guid') {
+            $stmt = $db->query('SELECT COALESCE(MAX(`guid`), 0) + 1 AS next_id FROM `item_instance`');
+        } else {
+            $this->logDeliveryError('DIRECT DB NEXT ID FAILED', 'Invalid table/column pair: ' . $table . '.' . $column);
+            return 0;
+        }
+
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)$row['next_id'];
     }

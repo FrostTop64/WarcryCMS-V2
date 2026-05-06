@@ -98,18 +98,42 @@ function wc_ticket_msg_col($table) {
 }
 
 function wc_ticket_exists($pdo, $table, $id) {
-    $meta = wc_ticket_table_meta($table);
-    if (!$meta) { return false; }
-    $st = $pdo->prepare('SELECT COUNT(*) FROM '.$meta['table_sql'].' WHERE '.wc_ticket_id_col_sql($table).'=:id');
+    // Keep table and identifier SQL static. This prevents SQL injection and avoids SAST false positives.
+    if ($table === 'gm_ticket') {
+        $st = $pdo->prepare('SELECT COUNT(*) FROM `gm_ticket` WHERE `id`=:id');
+    } elseif ($table === 'gm_tickets') {
+        $st = $pdo->prepare('SELECT COUNT(*) FROM `gm_tickets` WHERE `ticketId`=:id');
+    } else {
+        return false;
+    }
+
     $st->execute(array(':id' => (int)$id));
     return ((int)$st->fetchColumn() > 0);
 }
 
 function wc_ticket_update($pdo, $table, $id, $fields, $params) {
-    $meta = wc_ticket_table_meta($table);
-    if (!$meta || !$fields || !wc_ticket_exists($pdo, $table, $id)) { return 0; }
+    if (!$fields || !wc_ticket_exists($pdo, $table, $id)) { return 0; }
+
+    // $fields are only produced by this file through wc_ticket_safe_col_sql() and fixed column branches.
+    // Re-validate the final SET fragments before they are used.
+    foreach ($fields as $field) {
+        if (!preg_match('/^`[A-Za-z0-9_]+`\s*=\s*(?::[A-Za-z0-9_]+|[0-9]+)$/', $field)) {
+            return 0;
+        }
+    }
+
+    $setSql = implode(', ', $fields);
     $params[':id'] = (int)$id;
-    $st = $pdo->prepare('UPDATE '.$meta['table_sql'].' SET '.implode(', ', $fields).' WHERE '.wc_ticket_id_col_sql($table).'=:id LIMIT 1');
+
+    // Keep table and WHERE identifiers static. The SET list is validated above and contains no raw input.
+    if ($table === 'gm_ticket') {
+        $st = $pdo->prepare('UPDATE `gm_ticket` SET '.$setSql.' WHERE `id`=:id LIMIT 1');
+    } elseif ($table === 'gm_tickets') {
+        $st = $pdo->prepare('UPDATE `gm_tickets` SET '.$setSql.' WHERE `ticketId`=:id LIMIT 1');
+    } else {
+        return 0;
+    }
+
     $st->execute($params);
     return max(1, (int)$st->rowCount());
 }

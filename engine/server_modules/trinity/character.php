@@ -131,6 +131,26 @@ class server_Character
       return $row['name'];
     }
 	
+	private function wcCharacterSelectColumn($key)
+    {
+        // Static allowlist: alias => real database column. No user-controlled identifier is accepted.
+        $allowed = array(
+            'account'       => '`account` AS `account`',
+            'guid'          => '`guid` AS `guid`',
+            'name'          => '`name` AS `name`',
+            'honorPoints'   => '`totalHonorPoints` AS `honorPoints`',
+            'killsLifeTime' => '`totalKills` AS `killsLifeTime`',
+            'online'        => '`online` AS `online`',
+            'level'         => '`level` AS `level`',
+            'class'         => '`class` AS `class`',
+            'race'          => '`race` AS `race`',
+            'gender'        => '`gender` AS `gender`',
+            'gold'          => '`money` AS `gold`',
+        );
+
+        return (isset($allowed[$key]) ? $allowed[$key] : false);
+    }
+
 	public function getCharacterData($guid = false, $name = false, $columns = false)
     {
 		if ($guid === false and $name === false)
@@ -138,48 +158,49 @@ class server_Character
 			return false;
 		}
 		
-		$columnsData = CORE_COLUMNS::get('characters');
-		//empty string
-		$queryColumns = "";
-		
+        $selectColumns = array();
+
 		//check if we wanna get multiple columns
 		if (is_array($columns))
 		{
 			foreach ($columns as $key)
 			{
-				//check if it's valid key
-				if (isset($columnsData[$key]))
-				{
-					$queryColumns .= "`" . $columnsData[$key] . "` AS " . $key . ", ";
-				}
+                $safeColumn = $this->wcCharacterSelectColumn($key);
+                if ($safeColumn !== false)
+                {
+                    $selectColumns[] = $safeColumn;
+                }
 			}
-			//check if the query has any valid columns at all
-			if ($queryColumns != "")
-			{
-				//remove the last "," symbol from the query
-				$queryColumns = substr($queryColumns, 0, strlen($queryColumns) - 2);
-			}
-			else
-				return false;
 		}
 		else
 		{
-			//check if the column is valid
-			if (isset($columnsData[$columns]))
-				$queryColumns = "`" . $columnsData[$columns] . "` AS " . $columns;
-			else
-				return false;
+            $safeColumn = $this->wcCharacterSelectColumn($columns);
+            if ($safeColumn !== false)
+            {
+                $selectColumns[] = $safeColumn;
+            }
 		}
-		
-		$res = $this->DB->prepare("SELECT ". $queryColumns . " FROM `characters` WHERE ".($guid === false ? "`name` = :name" : "`guid` = :guid")." LIMIT 1;");
-		if ($guid !== false)
-		{
-			$res->bindParam(':guid', $guid, PDO::PARAM_INT);
-		}
-		else
-		{
-			$res->bindParam(':name', $name, PDO::PARAM_STR);
-		}
+
+        if (count($selectColumns) === 0)
+        {
+            return false;
+        }
+
+        $queryColumns = implode(', ', $selectColumns);
+
+        // WHERE clause is selected only by server-side logic; values remain bound parameters.
+        if ($guid !== false)
+        {
+            $sql = 'SELECT '.$queryColumns.' FROM `characters` WHERE `guid` = :guid LIMIT 1;';
+            $res = $this->DB->prepare($sql);
+            $res->bindParam(':guid', $guid, PDO::PARAM_INT);
+        }
+        else
+        {
+            $sql = 'SELECT '.$queryColumns.' FROM `characters` WHERE `name` = :name LIMIT 1;';
+            $res = $this->DB->prepare($sql);
+            $res->bindParam(':name', $name, PDO::PARAM_STR);
+        }
 		$res->execute();
 		
 		$row = $res->fetch(PDO::FETCH_ASSOC);
@@ -192,7 +213,7 @@ class server_Character
 		
 		//free memory
 		unset($queryColumns);
-		unset($columnsData);
+		unset($selectColumns);
 		  
       return $row;
     }
