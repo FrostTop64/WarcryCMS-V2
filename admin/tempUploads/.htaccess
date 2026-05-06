@@ -1,0 +1,7 @@
+Options -Indexes
+<FilesMatch "\.(php|phtml|phar|php[0-9]|cgi|pl|py|sh|bash|exe|dll|com|bat|cmd|htaccess)$">
+    Require all denied
+</FilesMatch>
+RemoveHandler .php .phtml .phar
+RemoveType .php .phtml .phar
+AddType text/plain .php .phtml .phar

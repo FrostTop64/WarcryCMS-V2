@@ -40,13 +40,18 @@ else
 		$file_title = str_replace(' ', '_', $file_title);
 		//find where the image extension begins and remove it
 		$file_title = substr($file_title, 0, strrpos($file_title, '.'));
-		
-		//Not really uniqe - but for all practical reasons, it is
-		$uniqer = substr(md5(uniqid(rand(), 1)), 0, 5);
+		//strip everything that isn't a safe basename character (kills double extensions, path separators, control chars)
+		$file_title = preg_replace('/[^a-z0-9_\-]/', '', (string)$file_title);
+		if ($file_title === '') {
+			$file_title = 'image';
+		}
+
+		//cryptographically random uniquifier so attacker cannot predict the final URL
+		$uniqer = bin2hex(random_bytes(8));
 
 		//Get Unique Name
 		$file_name = $uniqer . "_" . $file_title;
-	    
+
 		//check the filesize
 		if(filesize($_FILES["file"]['tmp_name']) > $maxsize)
 		{
@@ -84,41 +89,39 @@ else
 			}
 		}
 
-        list($width, $height, $type, $attr) = getimagesize($_FILES["file"]['tmp_name']);
+        $imageInfo = @getimagesize($_FILES["file"]['tmp_name']);
+        if ($imageInfo === false) {
+            echo $error . 'File is not a valid image.<br>';
+            return;
+        }
+        list($width, $height, $type, $attr) = $imageInfo;
         $mime = image_type_to_mime_type($type);
-        		
-		//if mime type is not allowed, return error
-        if(($mime != "image/jpeg") && ($mime != "image/pjpeg") && ($mime != "image/jpg") && ($mime != "image/png") && ($mime != "image/gif"))
-		{
-			$error .= 'File Type not allowed.<br>';
-		}
-		
-		//appply the extension of the image
-		switch($mime)
-		{
-			case 'image/jpeg':
-				$file_name = $file_name . '.jpg';
-				break;
-			case 'image/pjpeg':
-				$file_name = $file_name . '.jpg';
-				break;
-			case 'image/jpg':
-				$file_name = $file_name . '.jpg';
-				break;
-			case 'image/png':
-				$file_name = $file_name . '.png';
-				break;
-			case 'image/gif':
-				$file_name = $file_name . '.gif';
-				break;
-			default:
-				$file_name = $file_name . '.jpg';
-				break;
-		}
-		
-		//Chmod the folder
-		@chmod($folder, 0777);
-			
+
+        //cross-check via finfo so getimagesize spoofing alone isn't enough
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $finfoMime = $finfo ? finfo_file($finfo, $_FILES["file"]['tmp_name']) : false;
+            if ($finfo) finfo_close($finfo);
+            if ($finfoMime !== false && $finfoMime !== $mime) {
+                echo $error . 'File Type not allowed.<br>';
+                return;
+            }
+        }
+
+		//strict whitelist; bail immediately on anything else
+        $extByMime = array(
+            'image/jpeg' => '.jpg',
+            'image/pjpeg' => '.jpg',
+            'image/jpg' => '.jpg',
+            'image/png' => '.png',
+            'image/gif' => '.gif',
+        );
+        if (!isset($extByMime[$mime])) {
+            echo $error . 'File Type not allowed.<br>';
+            return;
+        }
+        $file_name = $file_name . $extByMime[$mime];
+
 		$uploadfile = $folder . $file_name;
 		
 		//if we got no errors
@@ -162,9 +165,6 @@ else
 			}
 		}
 
-		//Chmod the folder back to normal
-		@chmod($folder, 0755);
-		
 		if ($error != '')
 		{
 			echo $error;
