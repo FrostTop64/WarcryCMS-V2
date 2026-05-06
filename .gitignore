@@ -1,0 +1,51 @@
+# Editor / OS junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Logs
+*.log
+*.log.*
+
+# Local environment overrides — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Composer / Node (in case anyone adds them)
+/vendor/
+/node_modules/
+composer.lock
+
+# PHP runtime / opcache leftovers
+*.cache.bak
+
+# Site runtime data — already-tracked files stay; new ones are ignored.
+# (cache/index.php, cache/<dir>/index.php and the .htaccess files keep their place)
+cache/**/*_cache
+uploads/articles/*.png
+uploads/articles/*.jpg
+uploads/articles/*.gif
+admin/tempUploads/*
+!admin/tempUploads/index.php
+!admin/tempUploads/.htaccess
+
+# Avatar manifest + custom uploads created at runtime
+resources/avatars/custom_avatar_*
+
+# SQL backups / dumps you didn't mean to ship
+*.sql.bak
+backup_*.sql
+backup-*.sql
+
+# Build artifacts
+*.zip
+*.tar.gz
+*.tgz
+
+# Docker bind-mount junk on Windows
+docker/data/
