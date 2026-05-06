@@ -16,21 +16,49 @@ function wc_ticket_redirect($realm, $suffix = '') {
     exit;
 }
 
-function wc_ticket_ident($name) {
-    return (is_string($name) && preg_match('/^[A-Za-z0-9_]+$/', $name));
+function wc_ticket_allowed_tables() {
+    return array(
+        'gm_ticket' => array(
+            'table_sql' => '`gm_ticket`',
+            'id_col'    => 'id',
+            'guid_col'  => 'playerGuid',
+            'msg_col'   => 'description',
+            'columns'   => array('id','playerGuid','description','completed','response','comment','viewed','assignedTo','closedBy','resolvedBy','needMoreHelp','lastModifiedTime','escalated')
+        ),
+        'gm_tickets' => array(
+            'table_sql' => '`gm_tickets`',
+            'id_col'    => 'ticketId',
+            'guid_col'  => 'guid',
+            'msg_col'   => 'message',
+            'columns'   => array('ticketId','guid','message','completed','response','comment','viewed','assignedTo','closedBy','resolvedBy','needMoreHelp','lastModifiedTime','escalated')
+        )
+    );
+}
+
+function wc_ticket_table_meta($table) {
+    $allowed = wc_ticket_allowed_tables();
+    return (is_string($table) && isset($allowed[$table])) ? $allowed[$table] : false;
+}
+
+function wc_ticket_safe_col_sql($table, $col) {
+    $meta = wc_ticket_table_meta($table);
+    if (!$meta || !in_array($col, $meta['columns'], true)) { return false; }
+    return '`'.$col.'`';
 }
 
 function wc_ticket_col($pdo, $table, $col) {
     try {
-        if (!wc_ticket_ident($table) || !wc_ticket_ident($col)) { return false; }
-        $q = $pdo->query('SHOW COLUMNS FROM `'.$table.'` LIKE '.$pdo->quote($col));
+        $meta = wc_ticket_table_meta($table);
+        if (!$meta || !in_array($col, $meta['columns'], true)) { return false; }
+        $q = $pdo->query('SHOW COLUMNS FROM '.$meta['table_sql'].' LIKE '.$pdo->quote($col));
         return ($q && $q->rowCount() > 0);
     } catch (Exception $e) { return false; }
 }
 
 function wc_ticket_table_exists($pdo, $table) {
     try {
-        if (!wc_ticket_ident($table)) { return false; }
+        $meta = wc_ticket_table_meta($table);
+        if (!$meta) { return false; }
         $q = $pdo->query('SHOW TABLES LIKE '.$pdo->quote($table));
         return ($q && $q->rowCount() > 0);
     } catch (Exception $e) { return false; }
@@ -38,7 +66,7 @@ function wc_ticket_table_exists($pdo, $table) {
 
 function wc_ticket_tables($pdo, $preferred = '') {
     $tables = array();
-    if ($preferred !== '' && wc_ticket_ident($preferred) && wc_ticket_table_exists($pdo, $preferred)) {
+    if ($preferred !== '' && wc_ticket_table_meta($preferred) && wc_ticket_table_exists($pdo, $preferred)) {
         $tables[] = $preferred;
     }
     foreach (array('gm_ticket', 'gm_tickets') as $t) {
@@ -50,29 +78,38 @@ function wc_ticket_tables($pdo, $preferred = '') {
 }
 
 function wc_ticket_id_col($table) {
-    return ($table === 'gm_tickets') ? 'ticketId' : 'id';
+    $meta = wc_ticket_table_meta($table);
+    return $meta ? $meta['id_col'] : 'id';
+}
+
+function wc_ticket_id_col_sql($table) {
+    $meta = wc_ticket_table_meta($table);
+    return $meta ? '`'.$meta['id_col'].'`' : '`id`';
 }
 
 function wc_ticket_guid_col($table) {
-    return ($table === 'gm_tickets') ? 'guid' : 'playerGuid';
+    $meta = wc_ticket_table_meta($table);
+    return $meta ? $meta['guid_col'] : 'playerGuid';
 }
 
 function wc_ticket_msg_col($table) {
-    return ($table === 'gm_tickets') ? 'message' : 'description';
+    $meta = wc_ticket_table_meta($table);
+    return $meta ? $meta['msg_col'] : 'description';
 }
 
 function wc_ticket_exists($pdo, $table, $id) {
-    $idCol = wc_ticket_id_col($table);
-    $st = $pdo->prepare('SELECT COUNT(*) FROM `'.$table.'` WHERE `'.$idCol.'`=:id');
+    $meta = wc_ticket_table_meta($table);
+    if (!$meta) { return false; }
+    $st = $pdo->prepare('SELECT COUNT(*) FROM '.$meta['table_sql'].' WHERE '.wc_ticket_id_col_sql($table).'=:id');
     $st->execute(array(':id' => (int)$id));
     return ((int)$st->fetchColumn() > 0);
 }
 
 function wc_ticket_update($pdo, $table, $id, $fields, $params) {
-    if (!$fields || !wc_ticket_exists($pdo, $table, $id)) { return 0; }
-    $idCol = wc_ticket_id_col($table);
+    $meta = wc_ticket_table_meta($table);
+    if (!$meta || !$fields || !wc_ticket_exists($pdo, $table, $id)) { return 0; }
     $params[':id'] = (int)$id;
-    $st = $pdo->prepare('UPDATE `'.$table.'` SET '.implode(', ', $fields).' WHERE `'.$idCol.'`=:id LIMIT 1');
+    $st = $pdo->prepare('UPDATE '.$meta['table_sql'].' SET '.implode(', ', $fields).' WHERE '.wc_ticket_id_col_sql($table).'=:id LIMIT 1');
     $st->execute($params);
     return max(1, (int)$st->rowCount());
 }
@@ -98,6 +135,7 @@ try {
         if (!wc_ticket_exists($RDB, $table, $id)) { continue; }
 
         $msgCol       = wc_ticket_msg_col($table);
+        $msgColSql    = wc_ticket_safe_col_sql($table, $msgCol);
         $hasCompleted = wc_ticket_col($RDB, $table, 'completed');
         $hasResponse  = wc_ticket_col($RDB, $table, 'response');
         $hasComment   = wc_ticket_col($RDB, $table, 'comment');
@@ -113,7 +151,7 @@ try {
             $message = isset($_POST['message']) ? trim((string)$_POST['message']) : '';
             if ($message === '') { throw new Exception('Ticket message cannot be empty.'); }
 
-            $fields = array('`'.$msgCol.'`=:message');
+            $fields = array($msgColSql.'=:message');
             $params = array(':message' => $message);
             if ($hasComment)  { $fields[]='`comment`=:comment'; $params[':comment'] = isset($_POST['comment']) ? trim((string)$_POST['comment']) : ''; }
             if ($hasResponse) { $fields[]='`response`=:response'; $params[':response'] = isset($_POST['response']) ? trim((string)$_POST['response']) : ''; }
@@ -152,8 +190,9 @@ try {
         }
 
         if ($action === 'delete') {
-            $idCol = wc_ticket_id_col($table);
-            $st = $RDB->prepare('DELETE FROM `'.$table.'` WHERE `'.$idCol.'`=:id LIMIT 1');
+            $meta = wc_ticket_table_meta($table);
+            if (!$meta) { continue; }
+            $st = $RDB->prepare('DELETE FROM '.$meta['table_sql'].' WHERE '.wc_ticket_id_col_sql($table).'=:id LIMIT 1');
             $st->execute(array(':id' => $id));
             $changed += (int)$st->rowCount();
             continue;
