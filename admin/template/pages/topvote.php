@@ -75,7 +75,7 @@ $sites = $DB->query("SELECT vs.*, COUNT(vd.id) AS vote_count
           <div class="field-stack"><input type="number" name="reward_silver" min="0" max="999999" value="<?php echo (int)$edit['reward_silver']; ?>"></div>
         </section>
         <section>
-          <label>Cooldown <small>Optional. Example: 12 hours, 24 hours. Empty uses config.php VOTE cooldown.</small></label>
+          <label>Cooldown <small>Optional. Example: 24 or 24 hours. A plain number is treated as hours. Empty uses config.php VOTE cooldown.</small></label>
           <div class="field-stack"><input type="text" name="cooldown" value="<?php echo tvh($edit['cooldown']); ?>" placeholder="24 hours"></div>
         </section>
         <section>

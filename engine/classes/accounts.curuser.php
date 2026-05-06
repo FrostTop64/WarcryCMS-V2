@@ -378,12 +378,23 @@ class CURUSER extends CORE
 		}
 
 		$data = array();
-		if (preg_match_all('/[\'\"]((?:\\\\.|(?![\'\"]).)*)[\'\"]\s*=>\s*[\'\"]((?:\\\\.|(?![\'\"]).)*)[\'\"]/s', $string, $matches, PREG_SET_ORDER))
+
+		// Supports both legacy strings and var_export() arrays, including quoted strings
+		// and unquoted numeric timestamps. This avoids using eval() while keeping
+		// cooldowns reliable after they are saved as integers.
+		if (preg_match_all('/[\'\"]((?:\\\\.|(?![\'\"]).)*)[\'\"]\s*=>\s*(?:[\'\"]((?:\\\\.|(?![\'\"]).)*)[\'\"]|(-?\d+(?:\.\d+)?))/s', $string, $matches, PREG_SET_ORDER))
 		{
 			foreach ($matches as $match)
 			{
 				$key = stripcslashes($match[1]);
-				$value = stripcslashes($match[2]);
+				if (isset($match[2]) && $match[2] !== '')
+				{
+					$value = stripcslashes($match[2]);
+				}
+				else
+				{
+					$value = isset($match[3]) ? (int)$match[3] : '';
+				}
 				$data[$key] = $value;
 			}
 		}

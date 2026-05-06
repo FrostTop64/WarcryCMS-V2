@@ -22,6 +22,16 @@ $DB->query("CREATE TABLE IF NOT EXISTS `vote_sites` (
     PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
+
+function topvote_normalize_cooldown($cooldown)
+{
+    $cooldown = trim((string)$cooldown);
+    if ($cooldown === '') { return ''; }
+    if (preg_match('/^\d+$/', $cooldown)) { return (int)$cooldown . ' hours'; }
+    if (preg_match('/^(\d+)\s*h$/i', $cooldown, $m)) { return (int)$m[1] . ' hours'; }
+    return $cooldown;
+}
+
 function topvote_redirect($suffix)
 {
     global $config;
@@ -36,7 +46,7 @@ if ($action === 'save')
     $url = isset($_POST['url']) ? trim($_POST['url']) : '';
     $img = isset($_POST['img']) ? trim($_POST['img']) : '';
     $reward = isset($_POST['reward_silver']) ? (int)$_POST['reward_silver'] : 2;
-    $cooldown = isset($_POST['cooldown']) ? trim($_POST['cooldown']) : '';
+    $cooldown = isset($_POST['cooldown']) ? topvote_normalize_cooldown($_POST['cooldown']) : '';
     $position = isset($_POST['position']) ? (int)$_POST['position'] : 0;
     $active = isset($_POST['active']) ? (int)$_POST['active'] : 1;
 
