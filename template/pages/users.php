@@ -37,7 +37,8 @@ if ($view === 'list') {
             $ins = $DB->prepare("INSERT IGNORE INTO `account_data`
                 (`id`,`displayName`,`silver`,`gold`,`cooldowns`,`socialData`,`birthday`,`gender`,`country`,`secretQuestion`,`secretAnswer`,`avatar`,`avatarType`,`rank`,`last_ip`,`admin_last_ip`,`reg_ip`,`last_login`,`last_login2`,`admin_last_login`,`admin_last_login2`,`status`,`event`,`salt`,`selected_realm`,`bt_milestone`)
                 VALUES (:id,:displayName,0,0,'','','','', 'US',0,'','',0,0,:lastIp,'0.0.0.0',:regIp,NOW(),NOW(),NOW(),NOW(),'active','NONE',SHA1(CONCAT(RAND(),NOW(),:saltName)),1,0)");
-            $ins->execute(array(':id'=>$a['id'], ':displayName'=>$a['username'], ':saltName'=>$a['username'], ':lastIp'=>!empty($a['last_ip'])?$a['last_ip']:'0.0.0.0', ':regIp'=>!empty($a['last_ip'])?$a['last_ip']:'0.0.0.0'));
+            $ip = !empty($a['last_ip']) ? $a['last_ip'] : '0.0.0.0';
+            $ins->execute(array(':id'=>$a['id'], ':displayName'=>$a['username'], ':saltName'=>$a['username'], ':lastIp'=>$ip, ':regIp'=>$ip));
             $cms = array('id'=>$a['id'], 'displayName'=>$a['username'], 'silver'=>0, 'gold'=>0, 'cms_rank'=>0, 'cms_status'=>'active', 'reg_ip'=>$a['last_ip'], 'last_ip'=>$a['last_ip'], 'selected_realm'=>1);
         }
         $gmAccess = array();
@@ -58,7 +59,8 @@ if ($view === 'manage' && $account > 0) {
     $authRecord = $authRes->fetch();
     if (!$webRecord && $authRecord) {
         $ins = $DB->prepare("INSERT IGNORE INTO `account_data` (`id`,`displayName`,`silver`,`gold`,`cooldowns`,`socialData`,`birthday`,`gender`,`country`,`secretQuestion`,`secretAnswer`,`avatar`,`avatarType`,`rank`,`last_ip`,`admin_last_ip`,`reg_ip`,`last_login`,`last_login2`,`admin_last_login`,`admin_last_login2`,`status`,`event`,`salt`,`selected_realm`,`bt_milestone`) VALUES (:id,:displayName,0,0,'','','','', 'US',0,'','',0,0,:lastIp,'0.0.0.0',:regIp,NOW(),NOW(),NOW(),NOW(),'active','NONE',SHA1(CONCAT(RAND(),NOW(),:saltName)),1,0)");
-        $ins->execute(array(':id'=>$account, ':displayName'=>$authRecord['username'], ':saltName'=>$authRecord['username'], ':lastIp'=>!empty($authRecord['last_ip'])?$authRecord['last_ip']:'0.0.0.0', ':regIp'=>!empty($authRecord['last_ip'])?$authRecord['last_ip']:'0.0.0.0'));
+        $ip = !empty($authRecord['last_ip']) ? $authRecord['last_ip'] : '0.0.0.0';
+        $ins->execute(array(':id'=>$account, ':displayName'=>$authRecord['username'], ':saltName'=>$authRecord['username'], ':lastIp'=>$ip, ':regIp'=>$ip));
         $webRes->execute(array(':id'=>$account)); $webRecord=$webRes->fetch();
     }
     try {
