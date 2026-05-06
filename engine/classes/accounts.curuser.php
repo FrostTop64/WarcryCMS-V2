@@ -279,7 +279,7 @@ class CURUSER extends CORE
 		$country = 'US';
 		$status = 'active';
 		$event = 'NONE';
-		$webSalt = sha1(uniqid(mt_rand(), true));
+		$webSalt = bin2hex(random_bytes(16));
 		$selectedRealm = 1;
 		$insert = $DB->prepare("INSERT INTO `account_data`
 		(`id`, `displayName`, `silver`, `gold`, `cooldowns`, `socialData`, `birthday`, `gender`, `country`, `secretQuestion`, `secretAnswer`, `avatar`, `avatarType`, `rank`, `last_ip`, `admin_last_ip`, `reg_ip`, `last_login`, `last_login2`, `admin_last_login`, `admin_last_login2`, `status`, `event`, `salt`, `selected_realm`, `bt_milestone`)

@@ -15,11 +15,7 @@ class EmailReservations
 	**/	
 	static public function generateKey()
 	{
-		//generate the key
-		$key = uniqid(mt_rand(), true) . uniqid(mt_rand(), true);
-		
-		//strip dots
-		return str_replace('.', '', $key);			
+		return bin2hex(random_bytes(32));
 	}
 		
 	/**
