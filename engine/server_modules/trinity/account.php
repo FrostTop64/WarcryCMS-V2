@@ -180,7 +180,7 @@ class server_Account
                     $saltRes->execute();
                     if ($web = $saltRes->fetch(PDO::FETCH_ASSOC)) {
                         $baseHash = self::isAzerothCoreSchema() ? self::makeSessionHashFromRow($acc) : (isset($acc['sha_pass_hash']) ? $acc['sha_pass_hash'] : '');
-                        if ($web['salt'] != '' && hash_equals(sha1($baseHash . $web['salt']), $cookieHash)) {
+                        if ($web['salt'] != '' && hash_equals(hash_hmac('sha256', $baseHash, $web['salt']), $cookieHash)) {
                             $CURUSER->setLoggedIn($acc['id'], $baseHash);
                         }
                     }
