@@ -1,6 +1,15 @@
 <?PHP
 include_once 'engine/initialize.php';
- 
+
+if (function_exists('warcry_csrf_guard')) {
+    warcry_csrf_guard('admin/ajax:' . (string)($_GET['phase'] ?? ''), function () {
+        header('HTTP/1.1 419 CSRF Token Mismatch');
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'csrf']);
+        exit;
+    });
+}
+
 $phase = ((isset($_GET['phase'])) ? (int)$_GET['phase'] : false);
 
 $phases = array(
