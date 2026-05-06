@@ -9,7 +9,14 @@ $file = $config['RootPath'].'/admin/execute_files/'.$execute.'_execute.php';
 
 if ($execute !== 'login') {
     warcry_admin_require_panel_access();
-}  
+}
+
+if (function_exists('warcry_csrf_guard') && $execute !== 'login') {
+    warcry_csrf_guard('admin/execute:' . (string)$execute, function () {
+        header('HTTP/1.1 419 CSRF Token Mismatch');
+        exit('CSRF token missing or invalid. Reload the page and retry.');
+    });
+}
 
 $allowed = array(
 	'login',
