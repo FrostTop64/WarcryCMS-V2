@@ -88,6 +88,22 @@ if (!defined('WARCRY_CSRF_ENFORCE')) {
     define('WARCRY_CSRF_ENFORCE', false);
 }
 
+if (!function_exists('warcry_log_safe')) {
+    /** Strip control characters / CRLF so attacker-controlled values cannot forge or split log lines. */
+    function warcry_log_safe($value, int $maxLen = 200): string
+    {
+        $value = (string)$value;
+        $value = preg_replace('/[\x00-\x1F\x7F]/u', '?', $value);
+        if ($value === null) {
+            return '';
+        }
+        if (function_exists('mb_substr')) {
+            return mb_substr($value, 0, $maxLen, 'UTF-8');
+        }
+        return substr($value, 0, $maxLen);
+    }
+}
+
 if (!function_exists('warcry_csrf_guard')) {
     function warcry_csrf_guard(string $context, callable $onBlock): void
     {
@@ -99,10 +115,10 @@ if (!function_exists('warcry_csrf_guard')) {
         }
         error_log(sprintf(
             '[warcry-csrf] missing/invalid token (%s) uri=%s ip=%s ua=%s',
-            $context,
-            $_SERVER['REQUEST_URI'] ?? '',
-            $_SERVER['REMOTE_ADDR'] ?? '',
-            substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 120)
+            warcry_log_safe($context, 60),
+            warcry_log_safe($_SERVER['REQUEST_URI'] ?? '', 200),
+            warcry_log_safe($_SERVER['REMOTE_ADDR'] ?? '', 60),
+            warcry_log_safe($_SERVER['HTTP_USER_AGENT'] ?? '', 120)
         ));
         if (WARCRY_CSRF_ENFORCE) {
             $onBlock();

@@ -245,7 +245,16 @@ A Docker dev environment is bundled for one-command setup. Skip the manual datab
 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/macOS) or Docker Engine + Compose v2 (Linux).
 
-## 2. Start the stack
+## 2. Configure secrets
+
+Copy the example env file and pick a DB password:
+
+```bash
+cp .env.example .env
+# edit .env: set MYSQL_PASSWORD and MYSQL_ROOT_PASSWORD
+```
+
+## 3. Start the stack
 
 From the repo root:
 
@@ -255,7 +264,7 @@ docker compose up --build -d
 
 Wait ~1 minute, then open **http://localhost:8080**.
 
-## 3. Daily workflow
+## 4. Daily workflow
 
 | Action            | Command                                |
 | ----------------- | -------------------------------------- |
