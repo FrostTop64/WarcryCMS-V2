@@ -1102,7 +1102,7 @@ $.extend($.validator, {
 		// http://docs.jquery.com/Plugins/Validation/Methods/accept
 		accept: function(value, element, param) {
 			param = typeof param == "string" ? param.replace(/,/g, '|') : "png|jpe?g|gif";
-			return this.optional(element) || value.match(new RegExp(".(" + param + ")$", "i"));
+			return this.optional(element) || value.match(new RegExp(".test(" + param + ")$", "i"));
 		},
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/equalTo

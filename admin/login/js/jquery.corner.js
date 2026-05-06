@@ -102,17 +102,17 @@ $.fn.corner = function(options) {
         var $this = $(this),
             // meta values override options
             o = [$this.attr($.fn.corner.defaults.metaAttr) || '', options || ''].join(' ').toLowerCase(),
-            keep = /keep/.(o),                       // keep borders?
+            keep = /keep/.test(o),                       // keep borders?
             cc = ((o.match(/cc:(#[0-9a-f]+)/)||[])[1]),  // corner color
             sc = ((o.match(/sc:(#[0-9a-f]+)/)||[])[1]),  // strip color
             width = parseInt((o.match(/(\d+)px/)||[])[1]) || 10, // corner width
             re = /round|bevelfold|bevel|notch|bite|cool|sharp|slide|jut|curl|tear|fray|wicked|sculpt|long|dog3|dog2|dogfold|dog|invsteep|steep/,
             fx = ((o.match(re)||['round'])[0]),
-            fold = /dogfold|bevelfold/.(o),
+            fold = /dogfold|bevelfold/.test(o),
             edges = { T:0, B:1 },
             opts = {
-                TL:  /top|tl|left/.(o),       TR:  /top|tr|right/.(o),
-                BL:  /bottom|bl|left/.(o),    BR:  /bottom|br|right/.(o)
+                TL:  /top|tl|left/.test(o),       TR:  /top|tr|right/.test(o),
+                BL:  /bottom|bl|left/.test(o),    BR:  /bottom|br|right/.test(o)
             },
             // vars used in func later
             strip, pad, cssHeight, j, bot, d, ds, bw, i, w, e, c, common, $horz;

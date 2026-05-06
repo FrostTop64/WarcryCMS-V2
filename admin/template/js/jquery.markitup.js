@@ -166,8 +166,10 @@
 						}).bind("focusin", function(){
                             $$.focus();
 						}).mouseup(function() {
-							if (button.call) {
-								eval(button.call)();
+							if ($.isFunction(button.call)) {
+								button.call.call(markup);
+							} else if (typeof button.call === 'string' && /^[A-Za-z_$][\w$]*$/.test(button.call) && $.isFunction(window[button.call])) {
+								window[button.call].call(markup);
 							}
 							setTimeout(function() { markup(button) },1);
 							return false;

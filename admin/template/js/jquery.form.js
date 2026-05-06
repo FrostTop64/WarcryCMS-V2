@@ -69,7 +69,7 @@ $.fn.ajaxSubmit = function(options) {
 		url:  url,
 		success: $.ajaxSettings.success,
 		type: method || 'GET',
-		iframeSrc: /^https/i.(window.location.href || '') ? 'javascript:false' : 'about:blank'
+		iframeSrc: /^https/i.test(window.location.href || '') ? 'javascript:false' : 'about:blank'
 	}, options);
 
 	// hook for manipulating the form data before it is extracted;
@@ -365,7 +365,7 @@ $.fn.ajaxSubmit = function(options) {
 			}
 
 			// ie borks in some cases when setting encoding
-			if (! s.skipEncodingOverride && (!method || /post/i.(method))) {
+			if (! s.skipEncodingOverride && (!method || /post/i.test(method))) {
 				$form.attr({
 					encoding: 'multipart/form-data',
 					enctype:  'multipart/form-data'
@@ -498,7 +498,7 @@ $.fn.ajaxSubmit = function(options) {
 				}
 
 				var dt = (s.dataType || '').toLowerCase();
-				var scr = /(json|script|text)/.(dt);
+				var scr = /(json|script|text)/.test(dt);
 				if (scr || s.textarea) {
 					// see if user embedded response in textarea
 					var ta = doc.getElementsByTagName('textarea')[0];
@@ -900,7 +900,7 @@ $.fn.clearFields = $.fn.clearInputs = function(includeHidden) {
 	var re = /^(?:color|date|datetime|email|month|number|password|range|search|tel|text|time|url|week)$/i; // 'hidden' is not in this list
 	return this.each(function() {
 		var t = this.type, tag = this.tagName.toLowerCase();
-		if (re.(t) || tag == 'textarea' || (includeHidden && /hidden/.(t)) ) {
+		if (re.test(t) || tag == 'textarea' || (includeHidden && /hidden/.test(t)) ) {
 			this.value = '';
 		}
 		else if (t == 'checkbox' || t == 'radio') {
