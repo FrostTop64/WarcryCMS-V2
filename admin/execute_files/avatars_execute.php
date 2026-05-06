@@ -29,10 +29,12 @@ function wc_avatars_save_manifest($file, $items)
 
 function wc_avatars_safe_name($name)
 {
-    $name = strtolower($name);
-    $name = preg_replace('/[^a-z0-9\._-]+/i', '-', $name);
-    $name = trim($name, '.-_');
-    return $name == '' ? 'avatar' : $name;
+    $name = strtolower(basename((string)$name));
+    $name = pathinfo($name, PATHINFO_FILENAME);
+    $name = preg_replace('/[^a-z0-9_-]+/i', '-', $name);
+    $name = trim($name, '-_');
+    if ($name === '') { $name = 'avatar'; }
+    return substr($name, 0, 80);
 }
 
 function wc_avatars_next_id($items)
@@ -78,9 +80,12 @@ if ($action == 'upload')
     $items = wc_avatars_load_manifest($manifestFile);
     $id = wc_avatars_next_id($items);
     $ext = $allowed[$mime];
-    $base = wc_avatars_safe_name(pathinfo($_FILES['avatar']['name'], PATHINFO_FILENAME));
+    $base = wc_avatars_safe_name($_FILES['avatar']['name']);
     $fileName = 'custom_avatar_' . $id . '-' . substr(md5(uniqid('', true)), 0, 6) . '-' . $base . '.' . $ext;
-    $target = $avatarDir . '/' . $fileName;
+    $avatarDirReal = realpath($avatarDir);
+    if ($avatarDirReal === false) { $ERRORS->Add('Avatar folder is invalid.'); $ERRORS->Check('/index.php?page=avatars'); }
+    $target = $avatarDirReal . DIRECTORY_SEPARATOR . basename($fileName);
+    if (strpos($target, $avatarDirReal . DIRECTORY_SEPARATOR) !== 0) { $ERRORS->Add('Invalid avatar upload path.'); $ERRORS->Check('/index.php?page=avatars'); }
 
     if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $target))
     {
@@ -116,7 +121,11 @@ else if ($action == 'delete')
         $new[] = $item;
     }
 
-    if ($file != '' && file_exists($avatarDir . '/' . $file)) { @unlink($avatarDir . '/' . $file); }
+    $avatarDirReal = realpath($avatarDir);
+    if ($file != '' && $avatarDirReal !== false) {
+        $deletePath = realpath($avatarDirReal . DIRECTORY_SEPARATOR . basename($file));
+        if ($deletePath !== false && strpos($deletePath, $avatarDirReal . DIRECTORY_SEPARATOR) === 0 && file_exists($deletePath)) { @unlink($deletePath); }
+    }
     wc_avatars_save_manifest($manifestFile, $new);
     $ERRORS->triggerSuccess();
 }
