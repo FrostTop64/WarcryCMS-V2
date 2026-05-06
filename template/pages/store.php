@@ -195,20 +195,20 @@ $TPL->LoadHeader();
 							$totalPages = ceil($count / $perPage);
 
 							//setup the store javascript class
+							$storeConfig = array(
+								'currentPage'  => (int)$currentPage,
+								'totalPages'   => (int)$totalPages,
+								'totalRecords' => (int)$count,
+								'filter'       => array(
+									'search'  => (string)$search,
+									'quality' => (string)$quality
+								)
+							);
+
 							echo '	<script>
 									$(document).ready(function()
 									{
-										$(\'#store-item-container\').WarcryStore(\'changeConfig\',
-										{
-											currentPage: ', $currentPage, ', 
-											totalPages: ', $totalPages, ', 
-											totalRecords: ', $count, ', 
-											filter: 
-											{
-												search: \'', $search, '\', 
-												quality: \'', $quality, '\' 
-											}
-										});
+										$(\'#store-item-container\').WarcryStore(\'changeConfig\', ', json_encode($storeConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ');
 										$(\'#store-item-container\').WarcryStore(\'loadPage\', \'first\');
 									});
 							  		</script>';
