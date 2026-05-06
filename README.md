@@ -74,7 +74,7 @@ This version has been cleaned, fixed, and updated for better stability and perfo
 
 ---
 
-## 📦 Installation
+## 📦 Installation (classic XAMPP/WAMP)
 
 1. Place the CMS inside a folder named:
 
@@ -98,7 +98,70 @@ config.php
 
 ---
 
+## 🐳 Docker (easy mode — no install needed)
+
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop/). That's it.
+
+### Start the site
+
+Open a terminal in this folder. Run:
+
+```bash
+docker compose up --build -d
+```
+
+Wait ~1 minute. Open: **http://localhost:8080**
+
+That's the site. Done.
+
+### Edit code
+
+1. Edit any `.php` / CSS / JS file in your editor.
+2. Refresh your browser.
+3. Changes show up. No restart needed.
+
+### Stop the site
+
+```bash
+docker compose down
+```
+
+### Start it again later
+
+```bash
+docker compose up -d
+```
+
+(no `--build` — only needed the very first time.)
+
+### Look at the database
+
+http://localhost:8081 → server `db`, user `warcry`, pass `warcry`
+
+### Something broke?
+
+```bash
+docker compose logs web      # see error messages
+```
+
+### Start completely fresh (wipes DB)
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+More detail: [`docker/README.md`](docker/README.md).
+
+---
+
 ## 🧾 Requirements
+
+**Docker route (recommended):**
+
+* Docker Desktop (Windows/macOS) or Docker Engine (Linux) with Compose v2
+
+**Classic install:**
 
 * PHP 8.0+
 * MySQL / MariaDB
