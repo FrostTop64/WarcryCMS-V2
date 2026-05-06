@@ -67,10 +67,12 @@
 	 * Paging
 	 */
 	$sLimit = "";
-	if ( isset( $_GET['iDisplayStart'] ) && $_GET['iDisplayLength'] != '-1' )
+	if ( isset( $_GET['iDisplayStart'], $_GET['iDisplayLength'] ) && $_GET['iDisplayLength'] != '-1' )
 	{
-		$sLimit = "LIMIT ".intval( $_GET['iDisplayStart'] ).", ".
-			intval( $_GET['iDisplayLength'] );
+		$start = max(0, intval($_GET['iDisplayStart']));
+		$length = intval($_GET['iDisplayLength']);
+		if ($length < 1 || $length > 250) { $length = 25; }
+		$sLimit = "LIMIT ".$start.", ".$length;
 	}
 	
 	
@@ -83,10 +85,11 @@
 		$sOrder = "ORDER BY  ";
 		for ( $i=0 ; $i<intval( $_GET['iSortingCols'] ) ; $i++ )
 		{
-			if ( $_GET[ 'bSortable_'.intval($_GET['iSortCol_'.$i]) ] == "true" )
+			$colIndex = intval($_GET['iSortCol_'.$i]);
+			if ( isset($aColumns[$colIndex], $_GET['bSortable_'.$colIndex]) && $_GET['bSortable_'.$colIndex] == "true" )
 			{
-				$sOrder .= "`".$aColumns[ intval( $_GET['iSortCol_'.$i] ) ]."` ".
-					($_GET['sSortDir_'.$i]==='asc' ? 'asc' : 'desc') .", ";
+				$sOrder .= "`".$aColumns[$colIndex]."` ".
+					(isset($_GET['sSortDir_'.$i]) && $_GET['sSortDir_'.$i]==='asc' ? 'asc' : 'desc') .", ";
 			}
 		}
 		
