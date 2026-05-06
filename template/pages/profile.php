@@ -35,14 +35,24 @@ function wa_icon_cache_dir(){ $dir=dirname(__FILE__).'/../cache/wowhead_icons'; 
 function wa_fetch_wowhead_icon($type,$entry){
     $type=($type==='achievement')?'achievement':'item'; $entry=(int)$entry; if($entry<=0) return '';
     $dir=wa_icon_cache_dir(); $file=$dir.'/'.$type.'_'.$entry.'.txt';
-    if(is_file($file) && (time()-filemtime($file)) < 2592000) return trim((string)@file_get_contents($file));
+    if(is_file($file)) { $cached=trim((string)@file_get_contents($file)); if($cached!=='' && preg_match('/^[a-z0-9_]+$/',$cached)) return $cached; }
     $url='https://www.wowhead.com/wotlk/'.$type.'='.$entry.'&xml'; $xml='';
-    if(function_exists('curl_init')){ $ch=curl_init($url); curl_setopt($ch,CURLOPT_RETURNTRANSFER,true); curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true); curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,2); curl_setopt($ch,CURLOPT_TIMEOUT,4); curl_setopt($ch,CURLOPT_USERAGENT,'WarcryCMS Armory'); $xml=(string)curl_exec($ch); curl_close($ch); }
-    else { $ctx=stream_context_create(array('http'=>array('timeout'=>4,'header'=>"User-Agent: WarcryCMS Armory\r\n"))); $xml=(string)@file_get_contents($url,false,$ctx); }
+    if(function_exists('curl_init')){
+        $ch=curl_init($url);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true); curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
+        curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,5); curl_setopt($ch,CURLOPT_TIMEOUT,10);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false); curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
+        curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 WarcryCMS Armory Icon Cache');
+        $xml=(string)curl_exec($ch); curl_close($ch);
+    } else {
+        $ctx=stream_context_create(array('http'=>array('timeout'=>10,'header'=>"User-Agent: Mozilla/5.0 WarcryCMS Armory Icon Cache\r\n"),'ssl'=>array('verify_peer'=>false,'verify_peer_name'=>false)));
+        $xml=(string)@file_get_contents($url,false,$ctx);
+    }
     $icon=''; if($xml && preg_match('/<icon[^>]*>([^<]+)<\/icon>/i',$xml,$m)) $icon=strtolower(trim($m[1]));
     if($icon!=='' && preg_match('/^[a-z0-9_]+$/',$icon)){ @file_put_contents($file,$icon); return $icon; }
     return '';
 }
+function wa_icon_url($icon){ $icon=strtolower((string)$icon); if(!preg_match('/^[a-z0-9_]+$/',$icon)) $icon='inv_misc_questionmark'; return 'https://wow.zamimg.com/images/wow/icons/large/'.$icon.'.jpg'; }
 function wa_item_icon_guess($entry,$name,$class=0,$inv=0){
     $entry=(int)$entry; $name=strtolower((string)$name); $remote=wa_fetch_wowhead_icon('item',$entry); if($remote!=='') return $remote;
     $known=array(25=>'inv_sword_04',35=>'inv_staff_08',36=>'inv_axe_04',37=>'inv_axe_04',38=>'inv_shirt_05',39=>'inv_pants_02',40=>'inv_boots_05',43=>'inv_boots_05',44=>'inv_pants_02',45=>'inv_shirt_05',47=>'inv_boots_05',48=>'inv_pants_02',49=>'inv_shirt_05',2092=>'inv_throwingknife_01',19019=>'inv_sword_39',32837=>'inv_weapon_glave_01',32838=>'inv_weapon_glave_01',17182=>'inv_hammer_unique_sulfuras',49623=>'inv_sword_155',50730=>'inv_axe_113',34648=>'inv_boots_plate_05',34649=>'inv_gauntlets_28',34650=>'inv_chest_plate06',34651=>'inv_belt_12',34652=>'inv_helmet_125',34653=>'inv_bracer_13',34655=>'inv_shoulder_92',34656=>'inv_pants_cloth_27',34657=>'inv_jewelry_necklace_37',34658=>'inv_jewelry_ring_34',34659=>'inv_misc_cape_19');
@@ -110,6 +120,16 @@ $uid=isset($_GET['uid'])?(int)$_GET['uid']:(isset($_GET['id'])?(int)$_GET['id']:
 $charGuid=isset($_GET['char'])?(int)$_GET['char']:0;
 $realmId=isset($_GET['realm'])?(int)$_GET['realm']:1;
 $realmWasRequested=isset($_GET['realm']);
+if(isset($_GET['wa_icon_ajax'])){
+    $type=(isset($_GET['type']) && $_GET['type']==='achievement')?'achievement':'item';
+    $id=isset($_GET['id'])?(int)$_GET['id']:0;
+    $icon=wa_fetch_wowhead_icon($type,$id);
+    if($icon==='') $icon=($type==='achievement')?'achievement_general':'inv_misc_questionmark';
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Cache-Control: public, max-age=2592000');
+    echo json_encode(array('ok'=>true,'type'=>$type,'id'=>$id,'icon'=>$icon,'url'=>wa_icon_url($icon)));
+    exit;
+}
 if($uid<=0 && isset($CURUSER) && $CURUSER->isOnline()) $uid=(int)$CURUSER->get('id');
 if($realmId<=0) $realmId=1;
 
@@ -145,8 +165,13 @@ $slots=array(0=>'Head',1=>'Neck',2=>'Shoulders',14=>'Back',4=>'Chest',3=>'Shirt'
 $leftSlots=array(0,1,2,14,4,3,18,8,9); $rightSlots=array(5,6,7,10,11,12,13,15,16,17);
 function wa_slot_html($slot,$equipment,$label){
     $it=isset($equipment[$slot])?$equipment[$slot]:false;
-    if($it){ $q=wa_quality($it['Quality']); $icon='https://wow.zamimg.com/images/wow/icons/large/'.wa_h($it['icon']).'.jpg'; return '<a class="wa-slot filled q-'.$q.'" href="https://www.wowhead.com/wotlk/item='.(int)$it['entry'].'" target="_blank" rel="item='.(int)$it['entry'].'" data-wowhead="item='.(int)$it['entry'].'"><img alt="" src="'.$icon.'" onerror="this.src=\'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg\'"/><span><b>'.wa_h($it['name']).'</b><em>iLvl '.(int)$it['ItemLevel'].' · '.$label.'</em></span></a>'; }
-    return '<div class="wa-slot empty"><span class="wa-empty-icon"></span><span><b>'.$label.'</b><em>Empty slot</em></span></div>';
+    if($it){
+        $entry=(int)$it['entry']; $q=wa_quality($it['Quality']);
+        $safeIcon=preg_match('/^[a-z0-9_]+$/',(string)$it['icon'])?(string)$it['icon']:'inv_misc_questionmark';
+        $icon=wa_icon_url($safeIcon);
+        return '<a class="wa-slot filled q-'.$q.'" href="https://www.wowhead.com/wotlk/item='.$entry.'" target="_blank" rel="item='.$entry.'" data-wowhead="item='.$entry.'" data-wh-entry="'.$entry.'"><img class="wa-item-icon" alt="" src="'.wa_h($icon).'" data-wh-icon-item="'.$entry.'" data-wh-fallback="'.wa_h($safeIcon).'" onerror="this.src=\'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg\'"/><span><b>'.wa_h($it['name']).'</b><em>iLvl '.(int)$it['ItemLevel'].' · '.wa_h($label).'</em></span></a>';
+    }
+    return '<div class="wa-slot empty"><span class="wa-empty-icon"></span><span><b>'.wa_h($label).'</b><em>Empty slot</em></span></div>';
 }
 ?>
 <style>
@@ -162,7 +187,33 @@ function wa_slot_html($slot,$equipment,$label){
 <div class="wa-sections"><div class="wa-section"><h3>Skills & Professions</h3><div class="wa-section-body"><?php if(!$skills): ?><div class="wa-muted">No skill data available.</div><?php else: foreach($skills as $sk): $si=wa_skill_info($charDB,$world,(int)$sk['skill']); $sv=(int)$sk['value']; $sm=max(1,(int)$sk['max']); $sp=min(100,round(($sv/$sm)*100)); ?><div class="wa-progress-row"><div class="wa-progress-top"><span class="wa-progress-name"><img class="wa-mini-icon" src="https://wow.zamimg.com/images/wow/icons/large/<?php echo wa_h($si['icon']); ?>.jpg" onerror="this.src='https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg'"> <?php echo wa_h($si['name']); ?></span><strong><?php echo $sv; ?> / <?php echo $sm; ?></strong></div><div class="wa-bar"><span style="width:<?php echo $sp; ?>%"></span></div></div><?php endforeach; endif; ?></div></div><div class="wa-section"><h3>Reputation</h3><div class="wa-section-body"><?php if(!$reputations): ?><div class="wa-muted">No reputation data available.</div><?php else: foreach($reputations as $rep): $rn=wa_rep_name($charDB,$world,(int)$rep['faction']); $rp=wa_rep_progress((int)$rep['standing']); ?><div class="wa-progress-row"><div class="wa-progress-top"><span><?php echo wa_h($rn); ?> <em class="wa-small">· <?php echo wa_h($rp[0]); ?></em></span><strong><?php echo (int)$rp[1]; ?> / <?php echo (int)$rp[2]; ?></strong></div><div class="wa-bar"><span style="width:<?php echo (int)$rp[3]; ?>%"></span></div><div class="wa-small">Raw standing: <?php echo (int)$rep['standing']; ?></div></div><?php endforeach; endif; ?></div></div></div>
 <?php else: ?><div class="wa-section" style="margin:24px"><h3>No characters</h3><div class="wa-section-body wa-muted">This account has no characters on the selected realm.</div></div><?php endif; ?></div></div><?php endif; ?></div></div></div>
 <script>
-var whTooltips = {colorLinks:false, iconizeLinks:false, renameLinks:true};
-(function(){var s=document.createElement('script');s.src='https://wow.zamimg.com/js/tooltips.js';s.async=true;document.head.appendChild(s);})();
+var whTooltips = {colorLinks:false, iconizeLinks:false, renameLinks:false};
+(function(){
+  function iconUrl(icon){ return 'https://wow.zamimg.com/images/wow/icons/large/' + icon + '.jpg'; }
+  function applyIcon(img, icon){
+    if(!img || !icon || !/^[a-z0-9_]+$/.test(icon)) return;
+    img.src = iconUrl(icon);
+    img.setAttribute('data-wh-current', icon);
+  }
+  function repairArmoryIcons(){
+    var imgs=document.querySelectorAll('img[data-wh-icon-item]');
+    for(var i=0;i<imgs.length;i++){
+      (function(img){
+        var id=img.getAttribute('data-wh-icon-item'); if(!id) return;
+        var key='warcry_wh_item_icon_'+id;
+        try { var cached=localStorage.getItem(key); if(cached){ applyIcon(img,cached); return; } } catch(e){}
+        var url='<?php echo wa_h($config['BaseURL']); ?>/index.php?page=profile&wa_icon_ajax=1&type=item&id='+encodeURIComponent(id)+'&t=1';
+        fetch(url,{credentials:'same-origin',cache:'force-cache'}).then(function(r){return r.json();}).then(function(j){
+          if(j && j.icon && j.icon !== 'inv_misc_questionmark'){ try{localStorage.setItem(key,j.icon);}catch(e){} applyIcon(img,j.icon); }
+        }).catch(function(){});
+      })(imgs[i]);
+    }
+  }
+  repairArmoryIcons();
+  window.addEventListener('load', repairArmoryIcons);
+  setTimeout(repairArmoryIcons, 700);
+  setTimeout(repairArmoryIcons, 1800);
+  var s=document.createElement('script');s.src='https://wow.zamimg.com/js/tooltips.js';s.async=true;s.onload=repairArmoryIcons;document.head.appendChild(s);
+})();
 </script>
 <?php $TPL->LoadFooter(); ?>
