@@ -57,7 +57,6 @@ $ERRORS->Check('/forums.php?page=post_topic');
 	$time = $CORE->getTime();
 	//Topic Flags
 	$flags = 0;
-	//Author id (assigned to local var so bindParam can take it by reference)
 	$authorId = (int)$CURUSER->get('id');
 
 	//Insert the topic record
