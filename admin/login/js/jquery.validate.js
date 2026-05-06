@@ -578,7 +578,7 @@ $.extend($.validator, {
 				theregex = /\$?\{(\d+)\}/g;
 			if ( typeof message == "function" ) {
 				message = message.call(this, rule.parameters, element);
-			} else if (theregex.(message)) {
+			} else if (theregex.test(message)) {
 				message = jQuery.format(message.replace(theregex, '{$1}'), rule.parameters);
 			}
 			this.errorList.push({
@@ -683,7 +683,7 @@ $.extend($.validator, {
 		},
 
 		checkable: function( element ) {
-			return /radio|checkbox/i.(element.type);
+			return /radio|checkbox/i.test(element.type);
 		},
 
 		findByName: function( name ) {
@@ -807,7 +807,7 @@ $.extend($.validator, {
 		}
 
 		// maxlength may be returned as -1, 2147483647 (IE) and 524288 (safari) for text inputs
-		if (rules.maxlength && /-1|2147483647|524288/.(rules.maxlength)) {
+		if (rules.maxlength && /-1|2147483647|524288/.test(rules.maxlength)) {
 			delete rules.maxlength;
 		}
 
@@ -1024,34 +1024,51 @@ $.extend($.validator, {
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/email
 		email: function(value, element) {
-			// contributed by Scott Gonzalez: http://projects.scottsplayground.com/email_address_validation/
-			return this.optional(element) || /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.(value);
+			// Lightweight validation to avoid the old complex regex that can trigger ReDoS/SAST warnings.
+			// Server-side validation must remain the source of truth.
+			value = $.trim(value);
+			return this.optional(element) || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 		},
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/url
 		url: function(value, element) {
-			// contributed by Scott Gonzalez: http://projects.scottsplayground.com/iri/
-			return this.optional(element) || /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.(value);
+			// Avoid the historical very large URL regex. This accepts http, https and ftp URLs only.
+			value = $.trim(value);
+			if (this.optional(element)) {
+				return true;
+			}
+			if (!/^(https?|ftp):\/\//i.test(value)) {
+				return false;
+			}
+			if (window.URL) {
+				try {
+					var parsedUrl = new URL(value);
+					return /^(https?|ftp):$/i.test(parsedUrl.protocol) && parsedUrl.hostname.length > 0;
+				} catch (e) {
+					return false;
+				}
+			}
+			return /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i.test(value);
 		},
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/date
 		date: function(value, element) {
-			return this.optional(element) || !/Invalid|NaN/.(new Date(value));
+			return this.optional(element) || !/Invalid|NaN/.test(new Date(value));
 		},
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/dateISO
 		dateISO: function(value, element) {
-			return this.optional(element) || /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.(value);
+			return this.optional(element) || /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value);
 		},
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/number
 		number: function(value, element) {
-			return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.(value);
+			return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value);
 		},
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/digits
 		digits: function(value, element) {
-			return this.optional(element) || /^\d+$/.(value);
+			return this.optional(element) || /^\d+$/.test(value);
 		},
 
 		// http://docs.jquery.com/Plugins/Validation/Methods/creditcard
@@ -1060,7 +1077,7 @@ $.extend($.validator, {
 			if ( this.optional(element) )
 				return "dependency-mismatch";
 			// accept only spaces, digits and dashes
-			if (/[^0-9 -]+/.(value))
+			if (/[^0-9 -]+/.test(value))
 				return false;
 			var nCheck = 0,
 				nDigit = 0,
