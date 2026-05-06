@@ -1,0 +1,26 @@
+.git
+.gitignore
+.github
+.idea
+.vscode
+node_modules
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# Per-host runtime state — let the volumes own these
+cache/*
+!cache/.htaccess
+!cache/index.php
+uploads/*
+!uploads/.htaccess
+!uploads/index.php
+admin/tempUploads/*
+!admin/tempUploads/index.php
+!admin/tempUploads/.htaccess
+
+# Docs / artifacts that don't need to ship in the image
+README.md
+_SQL&Guide/clean-header.png

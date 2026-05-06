@@ -1,0 +1,71 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: warcrycms:dev
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    environment:
+      WARCRY_DB_HOST: db
+      WARCRY_DB_USER: warcry
+      WARCRY_DB_PASS: warcry
+      WARCRY_DB_NAME: warcry
+      WARCRY_AUTH_HOST: db
+      WARCRY_AUTH_USER: warcry
+      WARCRY_AUTH_PASS: warcry
+      WARCRY_AUTH_NAME: auth
+      WARCRY_BASE_URL: "http://localhost:${WEB_PORT:-8080}"
+      PHP_DISPLAY_ERRORS: "1"
+    volumes:
+      - .:/var/www/html
+      - cache_data:/var/www/html/cache
+      - uploads_data:/var/www/html/uploads
+      - tempuploads_data:/var/www/html/admin/tempUploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-log-bin
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: warcry
+      MYSQL_USER: warcry
+      MYSQL_PASSWORD: warcry
+    ports:
+      - "${DB_PORT:-3307}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - "./_SQL&Guide/Warcry_Database.sql:/docker-entrypoint-initdb.d/10-warcry.sql:ro"
+      - ./docker/mysql/init/20-auth-stub.sql:/docker-entrypoint-initdb.d/20-auth-stub.sql:ro
+      - ./docker/mysql/init/30-grants.sql:/docker-entrypoint-initdb.d/30-grants.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:4
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  cache_data:
+  uploads_data:
+  tempuploads_data:

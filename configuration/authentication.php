@@ -5,8 +5,8 @@ if (!defined('init_config'))
 	exit;
 }
 
-$auth_config['DatabaseHost'] = 'localhost';
-$auth_config['DatabaseUser'] = 'Ghost';
-$auth_config['DatabasePass'] = 'ascent';
-$auth_config['DatabaseName'] = 'auth';
-$auth_config['DatabaseEncoding'] = 'utf8';
+$auth_config['DatabaseHost']     = getenv('WARCRY_AUTH_HOST')     ?: 'localhost';
+$auth_config['DatabaseUser']     = getenv('WARCRY_AUTH_USER')     ?: 'Ghost';
+$auth_config['DatabasePass']     = getenv('WARCRY_AUTH_PASS')     ?: 'ascent';
+$auth_config['DatabaseName']     = getenv('WARCRY_AUTH_NAME')     ?: 'auth';
+$auth_config['DatabaseEncoding'] = getenv('WARCRY_AUTH_ENCODING') ?: 'utf8';

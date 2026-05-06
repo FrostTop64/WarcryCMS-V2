@@ -12,14 +12,27 @@ $config['RootPath'] = dirname(__DIR__); 		// Auto-detects site folder, works on 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '127.0.0.1';
 $folder = basename($config['RootPath']);
-$config['BaseURL'] = $scheme . '://' . $host . '/' . $folder;
+// Containerized installs (Apache vhost docroot = project root) and any explicit
+// override skip the folder suffix; classic XAMPP/WAMP installs keep it.
+$baseUrlOverride = getenv('WARCRY_BASE_URL');
+if ($baseUrlOverride !== false && $baseUrlOverride !== '') {
+    $config['BaseURL'] = rtrim($baseUrlOverride, '/');
+} elseif (in_array($folder, array('html', 'www', 'public', 'public_html'), true)) {
+    $config['BaseURL'] = $scheme . '://' . $host;
+} else {
+    $config['BaseURL'] = $scheme . '://' . $host . '/' . $folder;
+}
 
 //Must be unique for each website
 $config['AuthCookieName'] = 'WarcryCMS';
 
 //Minifier Settings
 //StyleFolderURL rewrites the URLs for the image in the CSS files
-$config['StyleFolderURL'] = '/' . basename($config['RootPath']) . '/template/style/'; //(With slash at the end)
+if (in_array($folder, array('html', 'www', 'public', 'public_html'), true) || $baseUrlOverride) {
+    $config['StyleFolderURL'] = '/template/style/';
+} else {
+    $config['StyleFolderURL'] = '/' . basename($config['RootPath']) . '/template/style/'; //(With slash at the end)
+}
 
 // WAMP/PHP 8 fix: load CSS/JS files directly instead of the old resources/min system.
 // This fixes the white/no-theme page when the minifier fails locally.

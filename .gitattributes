@@ -1,0 +1,10 @@
+# Force LF on files that are executed inside Linux containers, regardless of
+# the host's autocrlf settings.
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+docker/**   text eol=lf
+
+# Treat the SQL dump as binary so Git doesn't try to munge it.
+_SQL\&Guide/Warcry_Database.sql binary
