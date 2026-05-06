@@ -87,13 +87,13 @@ $ERRORS->Check('/index.php?page=login');
 
 				if ($rememberme)
 				{
-					$salt = uniqid(mt_rand(), true);
+					$salt = bin2hex(random_bytes(16));
 					$update = $DB->prepare("UPDATE `account_data` SET `salt` = :salt WHERE `id` = :acc LIMIT 1;");
 					$update->bindParam(':acc', $accid, PDO::PARAM_INT);
 					$update->bindParam(':salt', $salt, PDO::PARAM_STR);
 					$update->execute();
 
-					$newHash = sha1($sessionHash . $salt);
+					$newHash = hash_hmac('sha256', $sessionHash, $salt);
 					$expire = strtotime('+1 month', time());
 					$value = $accusername . '-' . $newHash;
 					$CORE->setCookie('rmm', $value, $expire);
