@@ -90,42 +90,79 @@ class Minify_YUICompressor {
             throw new Exception('Minify_YUICompressor : could not create temp file.');
         }
         file_put_contents($tmpFile, $content);
-        exec(self::_getCmd($options, $type, $tmpFile), $output, $result_code);
+
+        list($output, $errorOutput, $result_code) = self::_runCompressor($options, $type, $tmpFile);
+
         unlink($tmpFile);
         if ($result_code != 0) {
-            throw new Exception('Minify_YUICompressor : YUI compressor execution failed.');
+            throw new Exception('Minify_YUICompressor : YUI compressor execution failed.' . ($errorOutput ? ' ' . $errorOutput : ''));
         }
-        return implode("\n", $output);
+        return $output;
     }
     
+    private static function _runCompressor($options, $type, $tmpFile)
+    {
+        $cmd = self::_getCmd($options, $type, $tmpFile);
+        $descriptors = array(
+            0 => array('pipe', 'r'),
+            1 => array('pipe', 'w'),
+            2 => array('pipe', 'w')
+        );
+
+        $process = proc_open($cmd, $descriptors, $pipes);
+        if (!is_resource($process)) {
+            throw new Exception('Minify_YUICompressor : could not start YUI compressor process.');
+        }
+
+        fclose($pipes[0]);
+        $output = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        $errorOutput = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+
+        $resultCode = proc_close($process);
+
+        return array($output, trim($errorOutput), $resultCode);
+    }
+
     private static function _getCmd($userOptions, $type, $tmpFile)
     {
+        if (!in_array($type, array('js', 'css'), true)) {
+            throw new InvalidArgumentException('Minify_YUICompressor : invalid compressor type.');
+        }
+
         $o = array_merge(
             array(
-                'charset' => ''
-                ,'line-break' => 5000
-                ,'type' => $type
-                ,'nomunge' => false
-                ,'preserve-semi' => false
-                ,'disable-optimizations' => false
-            )
-            ,$userOptions
+                'charset' => '',
+                'line-break' => 5000,
+                'type' => $type,
+                'nomunge' => false,
+                'preserve-semi' => false,
+                'disable-optimizations' => false
+            ),
+            is_array($userOptions) ? $userOptions : array()
         );
-        $cmd = self::$javaExecutable . ' -jar ' . escapeshellarg(self::$jarFile)
-             . " --type {$type}"
-             . (preg_match('/^[\\da-zA-Z0-9\\-]+$/', $o['charset'])
-                ? " --charset {$o['charset']}" 
-                : '')
-             . (is_numeric($o['line-break']) && $o['line-break'] >= 0
-                ? ' --line-break ' . (int)$o['line-break']
-                : '');
+
+        $cmd = escapeshellarg(self::$javaExecutable)
+             . ' -jar ' . escapeshellarg(self::$jarFile)
+             . ' --type ' . escapeshellarg($type);
+
+        if (isset($o['charset']) && preg_match('/^[a-zA-Z0-9_\-]+$/', (string)$o['charset'])) {
+            $cmd .= ' --charset ' . escapeshellarg((string)$o['charset']);
+        }
+
+        if (isset($o['line-break']) && is_numeric($o['line-break']) && $o['line-break'] >= 0) {
+            $cmd .= ' --line-break ' . (int)$o['line-break'];
+        }
+
         if ($type === 'js') {
             foreach (array('nomunge', 'preserve-semi', 'disable-optimizations') as $opt) {
-                $cmd .= $o[$opt] 
-                    ? " --{$opt}"
-                    : '';
+                if (!empty($o[$opt])) {
+                    $cmd .= ' --' . $opt;
+                }
             }
         }
+
         return $cmd . ' ' . escapeshellarg($tmpFile);
     }
     
