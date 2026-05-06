@@ -1,193 +1,360 @@
-# ![logo](https://i.ibb.co/RpgfR7Wd/Warcry-CMS-Png.png)
+<div align="center">
 
-Warcry CMS is a modern content management system for World of Warcraft private servers (AzerothCore).
-This version has been cleaned, fixed, and updated for better stability and performance.
+<img src="https://i.ibb.co/zT2Jp9vQ/Warcry-CMS-Png.png" width="440"/>
 
-![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png)
+</div>
 
-[AzerothCore](https://github.com/azerothcore/azerothcore-wotlk)
----
-![logo](https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/67d00cf7266d2c75571aebde_Example.svg)
+Modern World of Warcraft CMS rebuilt for AzerothCore.
 
-[Join our Discord](https://discord.gg/RcBduqxGG5)
+Cleaned, secured, modernized and actively maintained for modern PHP environments.
 
-## 🚀 Features
+<br>
 
-* WoW database integration (Auth, Characters, World)
-* In-game store system
-* Account management panel
-* Store activity tracking
-* Dynamic item icons (Wowhead integration)
-* Clean Warcry UI theme
+<img src="https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png" width="220"/>
 
----
+### Powered by AzerothCore
 
-## 🆕 Improvements (2026)
+[Website](https://www.azerothcore.org/) •
+[Discord](https://discord.gg/RcBduqxGG5)
 
-### 🧹 Cleanup & Optimization
-
-* Removed unused and legacy files
-* Cleaned outdated 2017 code
-* Improved structure and readability
-
-### ⚙️ PHP Fixes
-
-* Fixed PHP 8 warnings
-* Fixed deprecated functions
-* Improved stability across pages
-
-### 🛒 Store Activity
-
-* Fixed errors on activity page
-* Removed broken clickable item links
-* Improved display and data handling
-
-### 🔒 Security
-
-* Prevented access to invalid pages
-* Fixed directory listing issues
+</div>
 
 ---
 
-## 🆕 New Content
+# Overview
 
-### 👤 Profile Page
+Warcry CMS V2 is a fully reworked World of Warcraft CMS designed for AzerothCore private servers.
 
-* Custom user profile system
-* Displays player/account information
-* Integrated with database
+Originally abandoned years ago, the project has been heavily rebuilt and modernized to support:
 
-### ⚔️ Armory Page
+* Modern PHP versions
+* Improved security
+* Better performance
+* Cleaner architecture
+* Expanded gameplay integration
+* Professional UI/UX
+* Long-term maintainability
 
-* Custom Armory system
-* Displays characters, items, and visuals
-* Improved item icon handling
-
-### 🛠️ Admin Panel (In Development)
-
-* Administrative control panel
-* Future management tools for:
-
-  * Users
-  * Store
-  * Website content
+The goal of Warcry CMS is to provide a stable, lightweight and modern foundation for WoW private server websites.
 
 ---
 
-## 📦 Installation (classic XAMPP/WAMP)
+# 2026 Major Rework
 
-1. Place the CMS inside a folder named:
+## Full Legacy Cleanup
 
+The old 2017 codebase has been deeply cleaned and optimized.
+
+### Cleanup Includes
+
+* Removed duplicated files
+* Removed obsolete modules
+* Removed unused assets and pages
+* Reorganized core structure
+* Reduced unnecessary code
+* Improved loading performance
+* Cleaner template architecture
+
+---
+
+# Security Improvements
+
+A major focus of the rework was improving CMS security and stability.
+
+## Security Features
+
+* SQL Injection protections
+* Safer PDO query handling
+* Improved admin validation
+* Secure page access system
+* Invalid route protection
+* Safer file handling
+* Deprecated PHP fixes
+* Improved session handling
+* Better error handling
+* PHP 8+ compatibility fixes
+
+---
+
+# Core Features
+
+## Website Systems
+
+* News System
+* Realm Status
+* Account Management
+* Registration System
+* Login System
+* Vote System
+* Store System
+* Coin Activity Logs
+* Donation Integration
+* Multi-Realm Support
+
+---
+
+## Armory System
+
+Custom built Armory fully integrated with AzerothCore.
+
+### Features
+
+* Character profiles
+* Equipped item display
+* Item icon integration
+* Race & class visuals
+* Character statistics
+* Achievement support
+* Modernized character pages
+
+---
+
+## User Profile System
+
+Modern account profile system.
+
+### Includes
+
+* Account information
+* Activity tracking
+* Store history
+* Realm selection
+* Custom profile interface
+
+---
+
+## Store Features
+
+* In-game item store
+* Dynamic item icons
+* Currency system
+* Purchase logs
+* Store activity history
+* Improved transaction handling
+
+---
+
+# Admin Panel Rework
+
+The admin panel is currently being fully redesigned.
+
+## Current Improvements
+
+* Cleaner interface
+* Better navigation
+* Modern layout
+* Improved readability
+* Better module organization
+* Removal of broken legacy sections
+
+## Planned Features
+
+* Advanced website management
+* User moderation tools
+* Store management
+* News management
+* Security logs
+* Real-time statistics
+* Better permission handling
+
+---
+
+# UI & Design
+
+Warcry CMS now includes a heavily modernized interface inspired by World of Warcraft aesthetics while keeping a clean and professional layout.
+
+### UI Improvements
+
+* Reworked homepage
+* Modernized sliders
+* Improved typography
+* Better spacing & symmetry
+* Responsive improvements
+* Cleaner visual hierarchy
+* Improved readability
+
+---
+
+# Technical Improvements
+
+## PHP & Backend
+
+* PHP 8 compatibility
+* Deprecated function fixes
+* Improved PDO usage
+* Better database stability
+* Cleaner backend logic
+* Improved modularity
+
+## Performance
+
+* Reduced unnecessary assets
+* Optimized page loading
+* Cleaner CSS structure
+* Reduced duplicate requests
+
+---
+
+# Installation
+
+## 1. Place CMS inside your web directory
+
+Example:
+
+```bash
+/www/warcry
 ```
-warcry
-```
 
-2. Import SQL files from:
+---
 
-```
+## 2. Import SQL Files
+
+Located in:
+
+```bash
 /_SQL&Guide
 ```
 
-3. Configure your database in:
+---
 
-```
+## 3. Configure Database
+
+Edit:
+
+```bash
 config.php
 ```
 
-4. Launch your website.
+---
+
+## 4. Launch Website
+
+Access:
+
+```bash
+http://localhost/warcry
+```
 
 ---
 
-## 🐳 Docker (easy mode — no install needed)
+# Docker (alternative install)
 
-Install [Docker Desktop](https://www.docker.com/products/docker-desktop/). That's it.
+A Docker dev environment is bundled for one-command setup. Skip the manual database/PHP setup above.
 
-### Start the site
+## 1. Install Docker Desktop
 
-Open a terminal in this folder. Run:
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/macOS) or Docker Engine + Compose v2 (Linux).
+
+## 2. Start the stack
+
+From the repo root:
 
 ```bash
 docker compose up --build -d
 ```
 
-Wait ~1 minute. Open: **http://localhost:8080**
+Wait ~1 minute, then open **http://localhost:8080**.
 
-That's the site. Done.
+## 3. Daily workflow
 
-### Edit code
-
-1. Edit any `.php` / CSS / JS file in your editor.
-2. Refresh your browser.
-3. Changes show up. No restart needed.
-
-### Stop the site
-
-```bash
-docker compose down
-```
-
-### Start it again later
-
-```bash
-docker compose up -d
-```
-
-(no `--build` — only needed the very first time.)
-
-### Look at the database
-
-http://localhost:8081 → server `db`, user `warcry`, pass `warcry`
-
-### Something broke?
-
-```bash
-docker compose logs web      # see error messages
-```
-
-### Start completely fresh (wipes DB)
-
-```bash
-docker compose down -v
-docker compose up -d
-```
+| Action            | Command                                |
+| ----------------- | -------------------------------------- |
+| Edit code         | Save file → refresh browser (live)     |
+| Stop              | `docker compose down`                  |
+| Start again       | `docker compose up -d`                 |
+| Inspect database  | http://localhost:8081 (user/pass: `warcry`) |
+| View logs         | `docker compose logs web`              |
+| Wipe + restart    | `docker compose down -v && docker compose up -d` |
 
 More detail: [`docker/README.md`](docker/README.md).
 
 ---
 
-## 🧾 Requirements
+# Requirements
 
-**Docker route (recommended):**
+| Requirement | Version         |
+| ----------- | --------------- |
+| PHP         | 8.0+            |
+| Database    | MySQL / MariaDB |
+| Web Server  | Apache / Nginx  |
+| Core        | AzerothCore     |
 
-* Docker Desktop (Windows/macOS) or Docker Engine (Linux) with Compose v2
-
-**Classic install:**
-
-* PHP 8.0+
-* MySQL / MariaDB
-* Apache / Nginx
-* AzerothCore server
+Docker route only needs Docker Desktop / Engine with Compose v2.
 
 ---
 
-## 🛠️ Customization
+# Customization
 
-* Fully customizable via `/template/`
-* Easy to modify UI and features
+The CMS is highly customizable.
+
+### Editable Areas
+
+* Templates
+* Homepage
+* Store
+* Armory
+* Colors & Themes
+* News Layout
+* Modules
+* UI Components
+
+Main template folder:
+
+```bash
+/template/
+```
 
 ---
 
-## 👤 Author
-Warcry main project creator 
-Chompi coded it, EvilSystem designed (2017)
+# Development Status
 
+Warcry CMS V2 is actively being rebuilt and improved.
 
-Updated/Fix & Maintained by **Frost_Top** (2026)
+Large portions of the CMS have already been modernized, while additional systems continue to be upgraded progressively.
 
 ---
 
-## 📄 License
+# Screenshots
+
+<div align="center">
+
+Coming Soon
+
+</div>
+
+---
+
+# Credits
+
+## Original Project
+
+* Chompi — Core CMS Development
+* EvilSystem — Original Design (2017)
+
+---
+
+## 2026 Rework & Maintenance
+
+<div align="center">
+
+### Frost_Top
+
+Full modernization, security fixes, backend cleanup, UI redesign and AzerothCore support.
+
+</div>
+
+---
+
+# License
 
 MIT License
 
 ---
+
+<div align="center">
+
+### Warcry CMS V2
+
+Modern AzerothCore CMS Experience
+
+</div>
