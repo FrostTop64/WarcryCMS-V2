@@ -190,10 +190,17 @@ try {
         }
 
         if ($action === 'delete') {
-            $meta = wc_ticket_table_meta($table);
-            if (!$meta) { continue; }
-            $st = $RDB->prepare('DELETE FROM '.$meta['table_sql'].' WHERE '.wc_ticket_id_col_sql($table).'=:id LIMIT 1');
-            $st->execute(array(':id' => $id));
+            // Keep DELETE statements fully static so scanners do not flag dynamic SQL identifiers.
+            // $table is already restricted by wc_ticket_tables(), but we still branch explicitly.
+            if ($table === 'gm_ticket') {
+                $st = $RDB->prepare('DELETE FROM `gm_ticket` WHERE `id`=:id LIMIT 1');
+            } elseif ($table === 'gm_tickets') {
+                $st = $RDB->prepare('DELETE FROM `gm_tickets` WHERE `ticketId`=:id LIMIT 1');
+            } else {
+                continue;
+            }
+
+            $st->execute(array(':id' => (int)$id));
             $changed += (int)$st->rowCount();
             continue;
         }
