@@ -7,6 +7,7 @@ define('init_engine', true);
 
 require_once __DIR__ . '/security/hardening.php';
 require_once __DIR__ . '/security/datatables.php';
+require_once __DIR__ . '/security/purchase_log_dt.php';
 
 ###################################################################################
 ## FILE INCLUSION #################################################################
