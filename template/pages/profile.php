@@ -77,6 +77,7 @@ function wa_get_world_name($db,$world,$tables,$idCol,$nameCols,$id){
     foreach((array)$tables as $t){
         if(!preg_match('/^[A-Za-z0-9_]+$/',$t)) continue;
         try{
+			if(!preg_match('/^[a-zA-Z0-9_]+$/',$world)) continue;
             $exists=$db->query('SHOW TABLES FROM '.wa_sql_ident($world).' LIKE '.wa_sql_quote($db,$t));
             if(!$exists || !$exists->fetchColumn()) continue;
             $cols=$db->query('SHOW COLUMNS FROM '.wa_sql_ident($world).'.'.wa_sql_ident($t))->fetchAll(PDO::FETCH_COLUMN);
