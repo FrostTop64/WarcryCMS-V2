@@ -41,11 +41,17 @@ function wa_fetch_wowhead_icon($type,$entry){
         $ch=curl_init($url);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,true); curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
         curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,5); curl_setopt($ch,CURLOPT_TIMEOUT,10);
-        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false); curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
+        // Secure TLS: verify Wowhead SSL certificate and hostname (fixes SAST finding).
+        // Do NOT disable CURLOPT_SSL_VERIFYPEER / CURLOPT_SSL_VERIFYHOST.
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 WarcryCMS Armory Icon Cache');
         $xml=(string)curl_exec($ch); curl_close($ch);
     } else {
-        $ctx=stream_context_create(array('http'=>array('timeout'=>10,'header'=>"User-Agent: Mozilla/5.0 WarcryCMS Armory Icon Cache\r\n"),'ssl'=>array('verify_peer'=>false,'verify_peer_name'=>false)));
+        $ctx=stream_context_create(array(
+            'http'=>array('timeout'=>10,'header'=>"User-Agent: Mozilla/5.0 WarcryCMS Armory Icon Cache\r\n"),
+            'ssl'=>array('verify_peer'=>true,'verify_peer_name'=>true)
+        ));
         $xml=(string)@file_get_contents($url,false,$ctx);
     }
     $icon=''; if($xml && preg_match('/<icon[^>]*>([^<]+)<\/icon>/i',$xml,$m)) $icon=strtolower(trim($m[1]));
