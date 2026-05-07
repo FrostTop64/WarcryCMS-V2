@@ -2,6 +2,8 @@
 if (!defined('init_pages')) { header('HTTP/1.0 404 not found'); exit; }
 
 require_once $config['RootPath'].'/engine/helpers/account_modules.php';
+require_once $config['RootPath'].'/engine/helpers/lottery.php';
+warcry_lottery_ensure_tables();
 
 function ham($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 
@@ -11,7 +13,7 @@ if ($error = $ERRORS->DoPrint('account_modules')) { echo $error; }
 $d = warcry_account_modules_defaults();
 foreach ($d as $k => $v) { $d[$k] = warcry_account_module_get($k, $v); }
 
-$allowed_categories = array('shop', 'level-rewards', 'character-services', 'account-services', 'misc');
+$allowed_categories = array('shop', 'lottery', 'level-rewards', 'character-services', 'account-services', 'misc');
 $category = isset($_GET['cat']) ? strtolower(trim($_GET['cat'])) : 'shop';
 if (!in_array($category, $allowed_categories, true)) { $category = 'shop'; }
 
@@ -20,6 +22,11 @@ $tabs = array(
         'label' => 'Shop',
         'icon'  => '💰',
         'desc'  => 'Gold, shop services and economy modules.'
+    ),
+    'lottery' => array(
+        'label' => 'Lottery',
+        'icon'  => '🎟️',
+        'desc'  => 'Scratch ticket cost, default rewards and item prize pool.'
     ),
     'level-rewards' => array(
         'label' => 'Level Rewards',
@@ -222,6 +229,67 @@ $tabs = array(
                                 <input type="text" name="purchase_gold_max" value="<?php echo ham($d['purchase_gold_max']); ?>">
                             </div>
                         </section>
+                    </div>
+
+
+                <?php elseif ($category === 'lottery'): ?>
+                    <div class="warcry-module-card">
+                        <h3>Lottery Settings</h3>
+                        <section>
+                            <label>Enabled</label>
+                            <div class="field-inline">
+                                <select name="lottery_enabled">
+                                    <option value="1"<?php echo $d['lottery_enabled']=='1'?' selected':''; ?>>Enabled</option>
+                                    <option value="0"<?php echo $d['lottery_enabled']=='0'?' selected':''; ?>>Disabled</option>
+                                </select>
+                            </div>
+                        </section>
+                        <section>
+                            <label>Title</label>
+                            <div class="field-stack"><input type="text" name="lottery_title" value="<?php echo ham($d['lottery_title']); ?>"></div>
+                        </section>
+                        <section>
+                            <label>Description</label>
+                            <div class="field-stack"><textarea name="lottery_description" rows="3"><?php echo ham($d['lottery_description']); ?></textarea></div>
+                        </section>
+                        <section>
+                            <label>Ticket Price</label>
+                            <div class="field-inline"><input type="text" name="lottery_ticket_price" value="<?php echo ham($d['lottery_ticket_price']); ?>"> <span class="badge">Gold Coins</span></div>
+                        </section>
+                    </div>
+
+                    <div class="warcry-module-card">
+                        <h3>Lottery Prize Pool</h3>
+                        <div class="notice">Weight controls chance. Higher weight = more common. Icon is the Wowhead icon name without .jpg.</div>
+                        <table class="nice-table" style="width:100%;margin:12px 0;">
+                            <thead><tr><th>Icon</th><th>Item ID</th><th>Name</th><th>Qty</th><th>Weight</th><th>Enabled</th><th>Actions</th></tr></thead>
+                            <tbody>
+                            <?php foreach (warcry_lottery_prizes(false) as $prize): ?>
+                                <tr>
+                                    <form method="post" action="execute.php?take=lottery_prize">
+                                    <td><img src="<?php echo warcry_lottery_icon_url($prize['icon'], 'medium'); ?>" width="32" height="32" style="border:1px solid #6f5528;"><br><input type="text" name="icon" value="<?php echo ham($prize['icon']); ?>" style="width:120px"></td>
+                                    <td><input type="text" name="item_entry" value="<?php echo (int)$prize['item_entry']; ?>" style="width:70px"></td>
+                                    <td><input type="text" name="item_name" value="<?php echo ham($prize['item_name']); ?>" style="width:230px"></td>
+                                    <td><input type="text" name="quantity" value="<?php echo (int)$prize['quantity']; ?>" style="width:50px"></td>
+                                    <td><input type="text" name="weight" value="<?php echo (int)$prize['weight']; ?>" style="width:55px"></td>
+                                    <td><select name="enabled"><option value="1"<?php echo $prize['enabled']?' selected':''; ?>>Yes</option><option value="0"<?php echo !$prize['enabled']?' selected':''; ?>>No</option></select></td>
+                                    <td><input type="hidden" name="id" value="<?php echo (int)$prize['id']; ?>"><button type="submit" name="action" value="save" class="button">Save</button> <button type="submit" name="action" value="delete" class="button" onclick="return confirm('Delete this lottery prize?');">Delete</button></td>
+                                    </form>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr>
+                                <form method="post" action="execute.php?take=lottery_prize">
+                                <td><input type="text" name="icon" value="inv_misc_questionmark" style="width:120px"></td>
+                                <td><input type="text" name="item_entry" value="" style="width:70px"></td>
+                                <td><input type="text" name="item_name" value="" style="width:230px" placeholder="New prize name"></td>
+                                <td><input type="text" name="quantity" value="1" style="width:50px"></td>
+                                <td><input type="text" name="weight" value="10" style="width:55px"></td>
+                                <td><select name="enabled"><option value="1">Yes</option><option value="0">No</option></select></td>
+                                <td><button type="submit" name="action" value="add" class="button primary">Add Prize</button></td>
+                                </form>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                 <?php elseif ($category === 'level-rewards'): ?>

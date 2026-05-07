@@ -40,6 +40,10 @@ function warcry_account_modules_defaults()
         'levels_3_bag_item' => '21876',
         'levels_3_bag_slots' => '20',
         'levels_3_price' => '8',
+        'lottery_enabled' => '1',
+        'lottery_ticket_price' => '3',
+        'lottery_title' => 'Lottery Scratch Ticket',
+        'lottery_description' => 'Scratch a ticket with your mouse for a random Wrath of the Lich King item. Rewards are stored in your website inventory and can be claimed to any character later.',
     );
 }
 

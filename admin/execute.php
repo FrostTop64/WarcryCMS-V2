@@ -45,6 +45,7 @@ $allowed = array(
 	'realms',
 	'account_modules',
 	'ticket_manage',
+	'lottery_prize',
 );
 
 if (in_array($execute, $allowed, true))

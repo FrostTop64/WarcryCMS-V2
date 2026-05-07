@@ -72,6 +72,7 @@ $allowed = array(
 	'purchase_gold',
 	'pcode',
 	'buy-gcoins',
+	'lottery',
 );
 
 //Check for notifications

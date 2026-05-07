@@ -200,6 +200,16 @@ $TPL->LoadHeader();
                     </a>
                 </li>
             
+                <li>
+                    <a href="<?php echo $config['BaseURL'], '/index.php?page=lottery'; ?>">
+                     <div id="icon" style="background-image:url(http://wow.zamimg.com/images/wow/icons/large/inv_misc_ticket_tarot_furies.jpg);"></div>
+                     <span>
+                      <p>Lottery</p>
+                      Scratch tickets for random rewards.
+                     </span>
+                    </a>
+                </li>
+
             </ul>
             <!-- Main Account menu.End -->
         

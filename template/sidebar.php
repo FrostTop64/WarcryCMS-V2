@@ -77,7 +77,7 @@ require_once $config['RootPath'] . '/engine/helpers/site_settings.php';
         
     	<div class="ts-status">
         	<a href="http://127.0.0.1/warcry/forums.php" target="_blank" id="download-ts">Visit Forums</a>
-            <a href="https://discord.gg/5GDExP3" target="_blank" id="download-ts">Discord</a>
+            <a href="https://discord.gg/RcBduqxGG5" target="_blank" id="download-ts">Discord</a>
             <a href="<?php echo $config['BaseURL']; ?>/index.php?page=howto&activate=1" id="download-htc">Server Guides</a>
         </div>
         

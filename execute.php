@@ -34,7 +34,10 @@ $allowed = array(
     'armorset',
     'teleport',
     'unstuck',
-    'manage_user'
+    'manage_user',
+    'lottery_buy',
+    'lottery_scratch',
+    'lottery_claim'
 );
 
 if (in_array($execute, $allowed, true))
