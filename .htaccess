@@ -21,3 +21,8 @@ Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 
 # Custom Warcry 404 page
 ErrorDocument 404 /warcry/404.php
+# Extra sensitive file blocking
+<FilesMatch "(^\.env|^\.git|composer\.(json|lock)|package(-lock)?\.json|yarn\.lock|webpack\.config\.js|.*\.(bak|backup|old|orig|save|sql|sqlite|log|ini|yml|yaml|md|dist|example))$">
+    Require all denied
+</FilesMatch>
+
